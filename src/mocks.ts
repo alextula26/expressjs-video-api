@@ -1,6 +1,6 @@
 import { DB, AvailableResolutions } from './types'
 
-export const db:DB = {
+export const db: DB = {
   videos: [
     {
       id: 1,
