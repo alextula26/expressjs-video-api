@@ -1,65 +1,46 @@
 import express from 'express'
-import { AvailableResolutions, VideoType } from './types/videos'
+import moment from 'moment'
+import { db } from './mocks'
 
 const app = express()
 const port = 3000
 
-const db:VideoType[] = [
-  {
-    id: 1,
-    title: "Видео 1",
-    author: "Автор 1",
-    canBeDownloaded: true,
-    minAgeRestriction: null,
-    createdAt: "2022-11-12T17:01:48.148Z",
-    publicationDate: "2022-11-12T17:01:48.148Z",
-    availableResolutions: [AvailableResolutions.P144],
-  },
-  {
-    id: 2,
-    title: "Видео 2",
-    author: "Автор 2",
-    canBeDownloaded: false,
-    minAgeRestriction: null,
-    createdAt: "2022-11-09T17:01:48.148Z",
-    publicationDate: "2022-11-09T17:01:48.148Z",
-    availableResolutions: [AvailableResolutions.P1440, AvailableResolutions.P720],
-  },
-  {
-    id: 3,
-    title: "Видео 3",
-    author: "Автор 3",
-    canBeDownloaded: true,
-    minAgeRestriction: null,
-    createdAt: "2022-11-05T17:01:48.148Z",
-    publicationDate: "2022-11-05T17:01:48.148Z",
-    availableResolutions: [AvailableResolutions.P480],
-  },
-]
+const jsonBodyMiddleware = express.json()
+app.use(jsonBodyMiddleware)
 
 app.get('/', (req, res) => {
   res.send('Expressjs video api')
 })
 
 app.get('/api/videos', (_, res) => {
-  res.json(db)
-  res.sendStatus(200)  
+  res.status(200).json(db.videos)
 })
 
 app.get('/api/videos/:id', (req, res) => {
-  const video = db.find(({ id }) => id === Number(req.params.id))
+  const video = db.videos.find(({ id }) => id === Number(req.params.id))
   
   if (!video) {
-    res.sendStatus(404)
+    res.status(404).json()
     return
   }
-  
-  res.json(video)
-  res.sendStatus(200)
+
+  res.status(200).json(video)
 })
 
 app.post('/api/videos', (req, res) => {
-  res.send('post videos')
+  const item = {
+    id: Number(moment().format('x')),
+    title: req.body.title,
+    author: req.body.author,
+    availableResolutions: req.body.availableResolutions,
+    canBeDownloaded: false,
+    minAgeRestriction: null,
+    createdAt: moment().format(),
+    publicationDate: moment().format(),
+  }
+
+  db.videos.push(item)
+  res.status(201).json(item)
 })
 
 app.put('/api/videos', (req, res) => {
@@ -67,14 +48,14 @@ app.put('/api/videos', (req, res) => {
 })
 
 app.delete('/api/videos/:id', (req, res) => {
-  const video = db.find(({ id }) => id === Number(req.params.id))
+  const video = db.videos.find(({ id }) => id === Number(req.params.id))
   
   if (!video) {
     res.sendStatus(404)
     return
   }
   
-  db.filter(({ id }) => id !== video.id)
+  db.videos.filter(({ id }) => id !== video.id)
   res.sendStatus(204)
 })
 
