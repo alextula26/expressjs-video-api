@@ -5,7 +5,7 @@ import { getNextId, getErrors } from './utils'
 import { HTTPStatuses } from './types'
 import { db } from './mocks'
 
-const app = express()
+export const app = express()
 const port = 3000
 
 const jsonBodyMiddleware = express.json()
@@ -17,16 +17,6 @@ app
   })
   .get('/api/videos', (_, res) => {
     res.status(HTTPStatuses.SUCCESS200).send(db.videos)
-  })
-  .get('/api/videos/:id', (req, res) => {
-    const video = db.videos.find(({ id }) => id === Number(req.params.id))
-    
-    if (!video) {
-      res.status(HTTPStatuses.NOTFOUND404)
-      return
-    }
-
-    res.status(200).send(video)
   })
   .post('/api/videos', (req, res) => {
     const errors = getErrors(req.body)
@@ -41,7 +31,7 @@ app
       title: req.body.title,
       author: req.body.author,
       availableResolutions: req.body.availableResolutions,
-      canBeDownloaded: false,
+      canBeDownloaded: true,
       minAgeRestriction: null,
       createdAt: moment().format(),
       publicationDate: moment().format(),
@@ -49,6 +39,16 @@ app
 
     db.videos.push(item)
     res.status(HTTPStatuses.CREATED201).send(item)
+  })
+  .get('/api/videos/:id', (req, res) => {
+    const video = db.videos.find(({ id }) => id === Number(req.params.id))
+
+    if (!video) {
+      res.status(HTTPStatuses.NOTFOUND404).send()
+      return
+    }
+
+    res.status(HTTPStatuses.SUCCESS200).send(video)
   })
   .put('/api/videos/:id', (req, res) => {
     const errors = getErrors(req.body)
@@ -90,6 +90,10 @@ app
     
     db.videos.filter(({ id }) => id !== video.id)
     res.status(HTTPStatuses.NOCONTENT204)
+  })
+  .delete('/api/testing/all-data', (_, res) => {
+    db.videos = []
+    res.status(HTTPStatuses.NOCONTENT204).send()
   })
   .listen(port, () => {
     console.log(`App listening on port ${port}`)

@@ -1,8 +1,8 @@
-import { DB, AvailableResolutions } from './types'
+import { DB } from './types'
 
 export const db: DB = {
   videos: [
-    {
+    /*{
       id: 1,
       title: "Видео 1",
       author: "Автор 1",
@@ -31,6 +31,6 @@ export const db: DB = {
       createdAt: "2022-11-05T17:01:48.148Z",
       publicationDate: "2022-11-05T17:01:48.148Z",
       availableResolutions: [AvailableResolutions.P480],
-    },
+    },*/
   ]
 }
