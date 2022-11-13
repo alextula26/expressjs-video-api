@@ -11,7 +11,7 @@
   },
   "scripts": {
     "watch": "tsc -w",
-    "dev": "nodemon --inspect ./dist/index.js",
+    "dev": "nodemon --inspect src/index.ts",
     "test": "jest"
   },
   "devDependencies": {
