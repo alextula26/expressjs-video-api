@@ -36,7 +36,11 @@ describe('/api/videos',  () => {
 
       await request(app)
       .post('/api/videos')
-      .send({ title: 'title будет больше 40 символов'.repeat(3), author: '', availableResolutions: null })
+      .send({
+        title: 'title будет больше 40 символов'.repeat(3),
+        author: '',
+        availableResolutions: null,
+      })
       .expect(HTTPStatuses.BADREQUEST400, [
         errorsValidator.titleMore40Chars,
         errorsValidator.titleEmptyError,
@@ -44,7 +48,11 @@ describe('/api/videos',  () => {
 
       await request(app)
       .post('/api/videos')
-      .send({ title: '', author: 'author будет больше 20 символов'.repeat(2), availableResolutions: null })
+      .send({
+        title: '',
+        author: 'author будет больше 20 символов'.repeat(2),
+        availableResolutions: null,
+      })
       .expect(HTTPStatuses.BADREQUEST400, [
         errorsValidator.titleEmptyError,
         errorsValidator.authorMore20Chars,
@@ -91,13 +99,12 @@ describe('/api/videos',  () => {
 
   it('should not update with incorrect input data', async () => {
     const publicationDate = moment().format()
-    
-    await request(app)
-      .post(`/api/videos/${createdVideo.id}`)
+      await request(app)
+      .post('/api/videos')
       .send({
         title: '',
         author: '',
-        availableResolutions: null,
+        availableResolutions: [AvailableResolutions.P144],
         canBeDownloaded: true,
         minAgeRestriction: 1,
         publicationDate: publicationDate,
@@ -107,29 +114,34 @@ describe('/api/videos',  () => {
         errorsValidator.authorEmptyError,
       ])
 
-      /*await request(app)
-      .post('/api/videos')
+      await request(app)
+      .put(`/api/videos/${createdVideo.id}`)
       .send({
         title: 'title будет больше 40 символов'.repeat(3),
-        author: '',
-        availableResolutions: null,
+        author: 'Автор 1',
+        availableResolutions: [AvailableResolutions.P144],
+        canBeDownloaded: true,
+        minAgeRestriction: 0,
+        publicationDate: publicationDate,
       })
       .expect(HTTPStatuses.BADREQUEST400, [
         errorsValidator.titleMore40Chars,
-        errorsValidator.titleEmptyError,
+        errorsValidator.minAgeRestrictionLess1Number,
       ])
 
       await request(app)
-      .post('/api/videos')
-      .send({ title: '', author: 'author будет больше 20 символов'.repeat(2), availableResolutions: null })
+      .put(`/api/videos/${createdVideo.id}`)
+      .send({
+        title: 'Видео 1',
+        author: 'author будет больше 20 символов'.repeat(2),
+        availableResolutions: [AvailableResolutions.P144],
+        canBeDownloaded: true,
+        minAgeRestriction: 20,
+        publicationDate: publicationDate,
+      })
       .expect(HTTPStatuses.BADREQUEST400, [
-        errorsValidator.titleEmptyError,
         errorsValidator.authorMore20Chars,
-      ])      
-
-      await request(app)
-      .get('/api/videos/1')
-      .expect(HTTPStatuses.NOTFOUND404)
-      */
+        errorsValidator.minAgeRestrictionMore18Number,
+      ])
   })
 })

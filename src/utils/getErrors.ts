@@ -17,6 +17,14 @@ export const errorsValidator = {
   authorMore20Chars: {
     message: "Поле не может быть пустым",
     field: "title"
+  },
+  minAgeRestrictionLess1Number: {
+    message: "Число в поле должно быть менее 1",
+    field: "minAgeRestriction"
+  },
+  minAgeRestrictionMore18Number: {
+    message: "Число в поле не может быть более 18",
+    field: "minAgeRestriction"
   }
 }
 
@@ -37,6 +45,14 @@ export const getErrors = (reqBody: any) => {
 
     if (reqBody.author.length > 20) {
       errorsMessages.push(errorsValidator.authorMore20Chars)
+    }
+
+    if (reqBody.minAgeRestriction < 1) {
+      errorsMessages.push(errorsValidator.minAgeRestrictionLess1Number)
+    }
+
+    if (reqBody.minAgeRestriction > 18) {
+      errorsMessages.push(errorsValidator.minAgeRestrictionMore18Number)
     }
 
     return errorsMessages
