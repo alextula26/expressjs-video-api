@@ -1,6 +1,6 @@
 import express from 'express'
 import moment from 'moment'
-import { isEmpty } from 'lodash'
+import { isEmpty, trim } from 'lodash'
 import { getNextId, getErrors } from './utils'
 import { HTTPStatuses } from './types'
 import { db } from './mocks'
@@ -20,7 +20,7 @@ app
   })
   .post('/api/videos', (req, res) => {
     const errors = getErrors(req.body)
-    
+
     if (!isEmpty(errors)) {
       res.status(HTTPStatuses.BADREQUEST400).send(errors)
       return
@@ -28,11 +28,11 @@ app
     
     const item = {
       id: getNextId(),
-      title: req.body.title,
-      author: req.body.author,
-      availableResolutions: req.body.availableResolutions,
-      canBeDownloaded: true,
-      minAgeRestriction: null,
+      title: trim(String(req.body.title)),
+      author: trim(String(req.body.author)),
+      availableResolutions: !isEmpty(req.body.availableResolutions) ? req.body.availableResolutions : null,
+      canBeDownloaded: req.body.canBeDownloaded || false,
+      minAgeRestriction: req.body.minAgeRestriction || null,
       createdAt: moment().format(),
       publicationDate: moment().format(),
     }
@@ -57,39 +57,36 @@ app
       res.status(HTTPStatuses.BADREQUEST400).send(errors)
       return
     }
-    
-    const video = db.videos.find(({ id }) => id === Number(req.params.id))
+
+    const id = +req.params.id    
+    const video = db.videos.find((video) => video.id === id)
+
+    if (!video) {
+      res.status(HTTPStatuses.NOTFOUND404).send()
+      return
+    }   
+
+    video.id = id,
+    video.title = trim(String(req.body.title)),
+    video.author = trim(String(req.body.author)),
+    video.availableResolutions = !isEmpty(req.body.availableResolutions) ? req.body.availableResolutions : null,
+    video.canBeDownloaded = req.body.canBeDownloaded || false,
+    video.minAgeRestriction = req.body.minAgeRestriction || null,
+    video.createdAt = video.createdAt,
+    video.publicationDate = req.body.publicationDate,
+
+    res.status(HTTPStatuses.NOCONTENT204).send()
+  })
+  .delete('/api/videos/:id', (req, res) => {
+    const video = db.videos.find(({ id }) => id === +req.params.id)
 
     if (!video) {
       res.status(HTTPStatuses.NOTFOUND404).send()
       return
     }
-
-    const id = Number(req.params.id)
-    const item = {
-      id,
-      title: req.body.title,
-      author: req.body.author,
-      availableResolutions: req.body.availableResolutions,
-      canBeDownloaded: req.body.canBeDownloaded,
-      minAgeRestriction: req.body.minAgeRestriction,
-      createdAt: video.createdAt,
-      publicationDate: req.body.publicationDate,
-    }
-
-    db.videos.map(video => video.id === id ? item : video)
+    
+    db.videos = db.videos.filter(({ id }) => id !== video.id)
     res.status(HTTPStatuses.NOCONTENT204).send()
-  })
-  .delete('/api/videos/:id', (req, res) => {
-    const video = db.videos.find(({ id }) => id === Number(req.params.id))
-    
-    if (!video) {
-      res.status(HTTPStatuses.NOTFOUND404)
-      return
-    }
-    
-    db.videos.filter(({ id }) => id !== video.id)
-    res.status(HTTPStatuses.NOCONTENT204)
   })
   .delete('/api/testing/all-data', (_, res) => {
     db.videos = []

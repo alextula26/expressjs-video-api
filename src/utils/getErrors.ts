@@ -1,59 +1,57 @@
-import { isEmpty } from 'lodash'
+import { isEmpty, trim, isArray, isNumber, isBoolean, isUndefined } from 'lodash'
 import { ErrorsMessagesType } from '../types'
 
 export const errorsValidator = {
-  titleEmptyError: {
-    message: "Поле не может быть пустым",
+  titleError: {
+    message: "title is incorrectly",
     field: "title"
   },
-  authorEmptyError: {
-    message: "Поле не может быть пустым",
-    field: "title"
+
+  authorError: {
+    message: "author is incorrectly",
+    field: "author"
   },
-  titleMore40Chars: {
-    message: "Поле не может быть больше 40 символов",
-    field: "title"
-  },
-  authorMore20Chars: {
-    message: "Поле не может быть пустым",
-    field: "title"
-  },
-  minAgeRestrictionLess1Number: {
-    message: "Число в поле должно быть менее 1",
+
+  availableResolutionsError: {
+    message: "availableResolutions is incorrectly",
+    field: "availableResolutions"
+  }, 
+
+  canBeDownloadedError: {
+    message: "canBeDownloaded is incorrectly",
+    field: "canBeDownloaded"
+  }, 
+  
+  minAgeRestrictionError: {
+    message: "minAgeRestriction is incorrectly",
     field: "minAgeRestriction"
-  },
-  minAgeRestrictionMore18Number: {
-    message: "Число в поле не может быть более 18",
-    field: "minAgeRestriction"
-  }
+  }, 
 }
 
 export const getErrors = (reqBody: any) => {
     const errorsMessages: ErrorsMessagesType[] = []
 
-    if (isEmpty(reqBody.title)) {
-      errorsMessages.push(errorsValidator.titleEmptyError)
+    if (isEmpty(trim(String(reqBody.title))) || trim(String(reqBody.title)).length > 40) {
+      errorsMessages.push(errorsValidator.titleError)
     }
 
-    if (reqBody.title.length > 40) {
-      errorsMessages.push(errorsValidator.titleMore40Chars)
+    if (isEmpty(trim(String(reqBody.author))) || trim(String(reqBody.author)).length > 20) {
+      errorsMessages.push(errorsValidator.authorError)
     }
 
-    if (isEmpty(reqBody.author)) {
-      errorsMessages.push(errorsValidator.authorEmptyError)
+    if (isArray(reqBody.availableResolutions) && isEmpty(reqBody.availableResolutions)) {
+      errorsMessages.push(errorsValidator.availableResolutionsError)
     }
 
-    if (reqBody.author.length > 20) {
-      errorsMessages.push(errorsValidator.authorMore20Chars)
+    if (!isUndefined(reqBody.canBeDownloaded) && !isBoolean(reqBody.canBeDownloaded)) {
+      errorsMessages.push(errorsValidator.canBeDownloadedError)
     }
 
-    if (reqBody.minAgeRestriction < 1) {
-      errorsMessages.push(errorsValidator.minAgeRestrictionLess1Number)
+    if (isNumber(reqBody.minAgeRestriction) && (reqBody.minAgeRestriction < 1 || reqBody.minAgeRestriction > 18)) {
+      errorsMessages.push(errorsValidator.minAgeRestrictionError)
     }
 
-    if (reqBody.minAgeRestriction > 18) {
-      errorsMessages.push(errorsValidator.minAgeRestrictionMore18Number)
-    }
+
 
     return errorsMessages
   }
