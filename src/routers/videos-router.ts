@@ -21,7 +21,10 @@ videosRouter
       return
     }
 
-    const dateISO = new Date().toISOString()
+    const createdAtISO = new Date().toISOString()
+    const publicationDate = new Date()
+    publicationDate.setDate(publicationDate.getDate() + 1)
+    const publicationDateISO = publicationDate.toISOString()
     
     const item = {
       id: getNextId(),
@@ -30,8 +33,8 @@ videosRouter
       availableResolutions: !isEmpty(req.body.availableResolutions) ? req.body.availableResolutions : null,
       canBeDownloaded: req.body.canBeDownloaded || false,
       minAgeRestriction: req.body.minAgeRestriction || null,
-      createdAt: dateISO,
-      publicationDate: dateISO,
+      createdAt: createdAtISO,
+      publicationDate: publicationDateISO,
     }
 
     db.videos.push(item)
