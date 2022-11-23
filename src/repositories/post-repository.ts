@@ -14,13 +14,26 @@ export const postRepository = {
   findPostById: (id: string): PostType | undefined => (
     db.posts.find((item) => item.id === id)
   ),
-  createdPost: ({ title, shortDescription, content, blogId }: CreatePostModel): PostType => {
+  createdPost: ({
+    title,
+    shortDescription,
+    content,
+    blogId,
+    blogName,
+  }: {
+    title: string,
+    shortDescription: string,
+    content: string,
+    blogId: string,
+    blogName: string,
+  }): PostType => {
     const createdPost: PostType = {
       id: getNextStrId(),
       title: trim(String(title)),
       shortDescription: trim(String(shortDescription)),
       content: trim(String(content)),
       blogId,
+      blogName,
     }
 
     db.posts.push(createdPost)
@@ -29,8 +42,19 @@ export const postRepository = {
   },
   updatePost: (
     id: string,
-    { title, shortDescription, content, blogId }: UpdatePostModel
-    ): boolean => {      
+    {
+      title,
+      shortDescription,
+      content,
+      blogId,
+      blogName,
+    }: {
+      title: string,
+      shortDescription: string,
+      content: string,
+      blogId: string,
+      blogName: string,
+    }): boolean => {  
       const updatedPost = db.posts.find((item) => item.id === id)
       
       if (!updatedPost) {
@@ -42,6 +66,7 @@ export const postRepository = {
       updatedPost.shortDescription = trim(String(shortDescription))
       updatedPost.content = trim(String(content))
       updatedPost.blogId = blogId
+      updatedPost.blogName = blogName
 
       return true    
   },

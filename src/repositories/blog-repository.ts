@@ -1,4 +1,4 @@
-import { isEmpty, trim } from 'lodash'
+import { trim } from 'lodash'
 import { db } from '../mocks'
 
 import { getNextStrId } from '../utils'

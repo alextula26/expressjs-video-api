@@ -1,11 +1,34 @@
 import request from 'supertest'
 import { app } from '../../src'
-import { BlogType, HTTPStatuses } from '../../src/types'
+import { PostType, BlogType, HTTPStatuses } from '../../src/types'
 import { postErrorsValidator } from '../../src/errors'
 
-describe('/api/posts',  () => { 
+describe('/api/posts',  () => {   
+  let createdBlog1: BlogType
+  let createdBlog2: BlogType
+
   beforeAll(async () => {
     await request(app).delete('/api/testing/all-data')
+    
+    const createdBlog1Responce = await request(app)
+      .post('/api/blogs/')
+      .send({
+        name: 'Блог 1',
+        description: 'Очень хороший блог 1',
+        websiteUrl: 'https://cont.ws/2425094',
+      })
+
+    createdBlog1 = createdBlog1Responce.body
+
+    const createdBlog2Responce = await request(app)
+      .post('/api/blogs/')
+      .send({
+        name: 'Блог 2',
+        description: 'Очень хороший блог 2',
+        websiteUrl: 'https://cont.ws/2425095',
+      })
+
+    createdBlog2 = createdBlog2Responce.body    
   })
 
   it('should return status 200 and empty array', async () => {
@@ -60,72 +83,87 @@ describe('/api/posts',  () => {
       .expect(HTTPStatuses.NOTFOUND404)
   })
 
-  let createdBlog1: BlogType
-
-  it('should create post 1 with correct input data', async () => {
-    const createdBlogResponce = await request(app)
+  it('should not create post 1 with incorrect blog id', async () => {
+    await request(app)
       .post('/api/posts')
       .send({
         title: 'Пост 1',
         shortDescription: 'Очень хороший пост 1',
         content: 'Контент очень хорошего поста 1',
-        blogId: '1',
+        blogId: '-100',
+      })
+      .expect(HTTPStatuses.BADREQUEST400)
+  })
+
+  let createdPost1: PostType
+
+  it('should create post 1 with correct input data', async () => {
+    const createdPostResponce = await request(app)
+      .post('/api/posts')
+      .send({
+        title: 'Пост 1',
+        shortDescription: 'Очень хороший пост 1',
+        content: 'Контент очень хорошего поста 1',
+        blogId: createdBlog1.id,
       })
       .expect(HTTPStatuses.CREATED201)
 
-    createdBlog1 = createdBlogResponce.body
+    createdPost1 = createdPostResponce.body
 
-    expect(createdBlog1).toEqual({
+    expect(createdPost1).toEqual({
       id: expect.any(String),
       title: 'Пост 1',
       shortDescription: 'Очень хороший пост 1',
       content: 'Контент очень хорошего поста 1',
-      blogId: '1',
+      blogId: createdBlog1.id,
+      blogName: createdBlog1.name,
     })
 
     await request(app)
-      .get(`/api/posts/${createdBlog1.id}`)
-      .expect(HTTPStatuses.SUCCESS200, createdBlog1)   
+      .get(`/api/posts/${createdPost1.id}`)
+      .expect(HTTPStatuses.SUCCESS200, createdPost1)   
       
     await request(app)
       .get('/api/posts')
-      .expect(HTTPStatuses.SUCCESS200, [createdBlog1])
+      .expect(HTTPStatuses.SUCCESS200, [createdPost1])
   })
 
-  let createdBlog2: BlogType
+  let createdPost2: PostType
+
   it('should create post 2 with correct input data', async () => {
-    const createdBlogResponce = await request(app)
+    const createdPostResponce = await request(app)
       .post('/api/posts')
       .send({
         title: 'Пост 2',
         shortDescription: 'Очень хороший пост 2',
         content: 'Контент очень хорошего поста 2',
-        blogId: '1',
+        blogId: createdBlog2.id,
       })
       .expect(HTTPStatuses.CREATED201)
 
-    createdBlog2 = createdBlogResponce.body
+    createdPost2 = createdPostResponce.body
 
-    expect(createdBlog2).toEqual({
+    expect(createdPost2).toEqual({
       id: expect.any(String),
       title: 'Пост 2',
       shortDescription: 'Очень хороший пост 2',
       content: 'Контент очень хорошего поста 2',
-      blogId: '1',
+      blogId: createdBlog2.id,
+      blogName: createdBlog2.name,
     })
 
     await request(app)
-      .get(`/api/posts/${createdBlog2.id}`)
-      .expect(HTTPStatuses.SUCCESS200, createdBlog2)
+      .get(`/api/posts/${createdPost2.id}`)
+      .expect(HTTPStatuses.SUCCESS200, createdPost2)
 
     await request(app)
     .get('/api/posts')
-    .expect(HTTPStatuses.SUCCESS200, [createdBlog1, createdBlog2])
+    .expect(HTTPStatuses.SUCCESS200, [createdPost1, createdPost2])
   })
 
   it('should not update post 1 with incorrect input data', async () => {
       await request(app)
-      .put(`/api/posts/${createdBlog1.id}`)
+      .put(`/api/posts/${createdPost1.id}`)
       .send({
         title: '',
         shortDescription: '',
@@ -142,7 +180,7 @@ describe('/api/posts',  () => {
       })
 
       await request(app)
-      .put(`/api/posts/${createdBlog1.id}`)
+      .put(`/api/posts/${createdPost1.id}`)
       .send({
         title: 'title будет больше 30 символов'.repeat(3),
         shortDescription: 'shortDescription будет больше 500 символов'.repeat(20),
@@ -164,39 +202,52 @@ describe('/api/posts',  () => {
         title: 'Пост 3',
         shortDescription: 'Очень хороший пост 3',
         content: 'Контент очень хорошего поста 3',
-        blogId: '1',
+        blogId: createdBlog1.id,
       })
       .expect(HTTPStatuses.NOTFOUND404)
 
       await request(app)
-      .get(`/api/posts/${createdBlog1.id}`)
-      .expect(HTTPStatuses.SUCCESS200, createdBlog1)   
+      .get(`/api/posts/${createdPost1.id}`)
+      .expect(HTTPStatuses.SUCCESS200, createdPost1)   
   })
 
-  it('should update post 1 with correct input data', async () => {
-      await request(app)
-      .put(`/api/posts/${createdBlog1.id}`)
+  it('should not update post 1 with incorrect blog id', async () => {
+    await request(app)
+      .put(`/api/posts/${createdPost1.id}`)
       .send({
         title: 'Пост 3',
         shortDescription: 'Очень хороший пост 3',
         content: 'Контент очень хорошего поста 3',
-        blogId: '1',
+        blogId: '-100',
+      })
+      .expect(HTTPStatuses.BADREQUEST400)
+  })
+
+  it('should update post 1 with correct input data', async () => {
+      await request(app)
+      .put(`/api/posts/${createdPost1.id}`)
+      .send({
+        title: 'Пост 3',
+        shortDescription: 'Очень хороший пост 3',
+        content: 'Контент очень хорошего поста 3',
+        blogId: createdBlog1.id,
       })
       .expect(HTTPStatuses.NOCONTENT204)
 
       await request(app)
-      .get(`/api/posts/${createdBlog1.id}`)
+      .get(`/api/posts/${createdPost1.id}`)
       .expect(HTTPStatuses.SUCCESS200, {
-        ...createdBlog1,
+        ...createdPost1,
         title: 'Пост 3',
         shortDescription: 'Очень хороший пост 3',
         content: 'Контент очень хорошего поста 3',
-        blogId: '1',
+        blogId: createdBlog1.id,
+        blogName: createdBlog1.name,
       })
 
       await request(app)
-      .get(`/api/posts/${createdBlog2.id}`)
-      .expect(HTTPStatuses.SUCCESS200, createdBlog2)
+      .get(`/api/posts/${createdPost2.id}`)
+      .expect(HTTPStatuses.SUCCESS200, createdPost2)
   })
 
   it('should delete all posts', async () => {
@@ -205,11 +256,11 @@ describe('/api/posts',  () => {
       .expect(HTTPStatuses.NOTFOUND404)
 
     await request(app)
-      .delete(`/api/posts/${createdBlog1.id}`)
+      .delete(`/api/posts/${createdPost1.id}`)
       .expect(HTTPStatuses.NOCONTENT204)
 
     await request(app)
-      .delete(`/api/posts/${createdBlog2.id}`)
+      .delete(`/api/posts/${createdPost2.id}`)
       .expect(HTTPStatuses.NOCONTENT204)
 
     await request(app)

@@ -1,6 +1,6 @@
 import { Router, Response } from "express";
 import { isEmpty } from 'lodash'
-import { postRepository } from '../repositories'
+import { postRepository, blogsRepository } from '../repositories'
 import { getPostErrors } from '../errors'
 import {
   HTTPStatuses,
@@ -17,13 +17,13 @@ import {
 
 export const postsRouter = Router()
 
-export const getPostViewModel = (db: PostType): PostViewModel => ({
-  id: db.id,
-  title: db.title,
-  shortDescription: db.shortDescription,
-  content: db.content,
-  blogId: db.blogId,
-  blogName: db.blogName,
+export const getPostViewModel = (dbPost: PostType): PostViewModel => ({
+  id: dbPost.id,
+  title: dbPost.title,
+  shortDescription: dbPost.shortDescription,
+  content: dbPost.content,
+  blogId: dbPost.blogId,
+  blogName: dbPost.blogName,
 })  
 
 postsRouter
@@ -51,11 +51,19 @@ postsRouter
       return
     }
 
+    const blogById = blogsRepository.findBlogById(req.body.blogId)
+
+    if (isEmpty(blogById)) {
+      res.status(HTTPStatuses.BADREQUEST400).send()
+      return
+    }
+
     const createdPost = postRepository.createdPost({
       title: req.body.title,
       shortDescription: req.body.shortDescription,
       content: req.body.content,
-      blogId: req.body.blogId,
+      blogId: blogById.id,
+      blogName: blogById.name,
     })
 
     const createdPostResponse = getPostViewModel(createdPost)
@@ -69,11 +77,19 @@ postsRouter
       return
     }
 
+    const blogById = blogsRepository.findBlogById(req.body.blogId)
+
+    if (isEmpty(blogById)) {
+      res.status(HTTPStatuses.BADREQUEST400).send()
+      return
+    }
+
     const isPostUpdated = postRepository.updatePost(req.params.id, {
       title: req.body.title,
       shortDescription: req.body.shortDescription,
       content: req.body.content,
-      blogId: req.body.blogId,
+      blogId: blogById.id,
+      blogName: blogById.name,
     })
 
     if (!isPostUpdated) {
