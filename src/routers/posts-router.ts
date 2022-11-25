@@ -1,7 +1,15 @@
 import { Router, Response } from "express";
 import { isEmpty } from 'lodash'
 import { postRepository, blogsRepository } from '../repositories'
-import { getPostErrors } from '../errors'
+import {
+  authMiddleware,
+  titlePostValidation,
+  shortPostDescriptionValidation,
+  contentPostValidation,
+  blogIdPostValidation,
+  inputValidationMiddleware,
+} from '../middlewares'
+
 import {
   HTTPStatuses,
   PostType,
@@ -24,7 +32,16 @@ export const getPostViewModel = (dbPost: PostType): PostViewModel => ({
   content: dbPost.content,
   blogId: dbPost.blogId,
   blogName: dbPost.blogName,
-})  
+})
+
+const middlewares = [
+  authMiddleware,
+  titlePostValidation,
+  shortPostDescriptionValidation,
+  contentPostValidation,
+  blogIdPostValidation,
+  inputValidationMiddleware,
+]
 
 postsRouter
   .get('/', (_, res: Response<PostViewModel[]>) => {
@@ -36,26 +53,17 @@ postsRouter
     const postById = postRepository.findPostById(req.params.id)
 
     if (!postById) {
-      res.status(HTTPStatuses.NOTFOUND404).send()
-      return
+      return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
     const postByIdResponse = getPostViewModel(postById)
     res.status(HTTPStatuses.SUCCESS200).send(postByIdResponse)
   })
-  .post('/', (req: RequestWithBody<CreatePostModel>, res: Response<PostViewModel | ErrorsMessageType>) => {
-    const errors = getPostErrors(req.body)
-
-    if (!isEmpty(errors.errorsMessages)) {
-      res.status(HTTPStatuses.BADREQUEST400).send(errors)
-      return
-    }
-
+  .post('/', middlewares, (req: RequestWithBody<CreatePostModel>, res: Response<PostViewModel | ErrorsMessageType>) => {
     const blogById = blogsRepository.findBlogById(req.body.blogId)
 
     if (isEmpty(blogById)) {
-      res.status(HTTPStatuses.BADREQUEST400).send()
-      return
+      return res.status(HTTPStatuses.BADREQUEST400).send()
     }
 
     const createdPost = postRepository.createdPost({
@@ -69,19 +77,11 @@ postsRouter
     const createdPostResponse = getPostViewModel(createdPost)
     res.status(HTTPStatuses.CREATED201).send(createdPostResponse)
   })
-  .put('/:id', (req: RequestWithParamsAndBody<URIParamsPostModel, UpdatePostModel>, res: Response) => {
-    const errors = getPostErrors(req.body)
-
-    if (!isEmpty(errors.errorsMessages)) {
-      res.status(HTTPStatuses.BADREQUEST400).send(errors)
-      return
-    }
-
+  .put('/:id', middlewares, (req: RequestWithParamsAndBody<URIParamsPostModel, UpdatePostModel>, res: Response) => {
     const blogById = blogsRepository.findBlogById(req.body.blogId)
 
     if (isEmpty(blogById)) {
-      res.status(HTTPStatuses.BADREQUEST400).send()
-      return
+      return res.status(HTTPStatuses.BADREQUEST400).send()
     }
 
     const isPostUpdated = postRepository.updatePost(req.params.id, {
@@ -93,18 +93,16 @@ postsRouter
     })
 
     if (!isPostUpdated) {
-      res.status(HTTPStatuses.NOTFOUND404).send()
-      return
+      return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
     res.status(HTTPStatuses.NOCONTENT204).send()
   })
-  .delete('/:id', (req: RequestWithParams<URIParamsPostModel>, res: Response) => {
+  .delete('/:id', authMiddleware, (req: RequestWithParams<URIParamsPostModel>, res: Response) => {
     const isPostDeleted = postRepository.deletePostById(req.params.id)
 
     if (!isPostDeleted) {
-      res.status(HTTPStatuses.NOTFOUND404).send()
-      return
+      return res.status(HTTPStatuses.NOTFOUND404).send()
     }
     
     res.status(HTTPStatuses.NOCONTENT204).send()

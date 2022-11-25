@@ -1,7 +1,13 @@
 import { Router, Response } from "express";
-import { isEmpty } from 'lodash'
 import { blogsRepository } from '../repositories'
-import { getBlogsErrors } from '../errors'
+import {
+  authMiddleware,
+  nameBlogValidation,
+  descriptionBlogValidation,
+  websiteUrlBlogValidation,
+  inputValidationMiddleware,
+} from '../middlewares'
+
 import {
   HTTPStatuses,
   BlogType,
@@ -16,6 +22,14 @@ import {
 } from '../types'
 
 export const blogsRouter = Router()
+
+const middlewares = [
+  authMiddleware,
+  nameBlogValidation,
+  descriptionBlogValidation,
+  websiteUrlBlogValidation,
+  inputValidationMiddleware
+]
 
 export const getBlogViewModel = (db: BlogType): BlogViewModel => ({
   id: db.id,
@@ -34,21 +48,13 @@ blogsRouter
     const blogoById = blogsRepository.findBlogById(req.params.id)
 
     if (!blogoById) {
-      res.status(HTTPStatuses.NOTFOUND404).send()
-      return
+      return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
     const blogoByIdResponse = getBlogViewModel(blogoById)
     res.status(HTTPStatuses.SUCCESS200).send(blogoByIdResponse)
   })
-  .post('/', (req: RequestWithBody<CreateBlogModel>, res: Response<BlogViewModel | ErrorsMessageType>) => {
-    const errors = getBlogsErrors(req.body)
-
-    if (!isEmpty(errors.errorsMessages)) {
-      res.status(HTTPStatuses.BADREQUEST400).send(errors)
-      return
-    }
-
+  .post('/', middlewares, (req: RequestWithBody<CreateBlogModel>, res: Response<BlogViewModel | ErrorsMessageType>) => {
     const createdBlog = blogsRepository.createdBlog({
       name: req.body.name,
       description: req.body.description,
@@ -58,14 +64,7 @@ blogsRouter
     const createdBlogResponse = getBlogViewModel(createdBlog)
     res.status(HTTPStatuses.CREATED201).send(createdBlogResponse)
   })
-  .put('/:id', (req: RequestWithParamsAndBody<URIParamsBlogModel, UpdateBlogModel>, res: Response) => {
-    const errors = getBlogsErrors(req.body)
-
-    if (!isEmpty(errors.errorsMessages)) {
-      res.status(HTTPStatuses.BADREQUEST400).send(errors)
-      return
-    }
-
+  .put('/:id', middlewares, (req: RequestWithParamsAndBody<URIParamsBlogModel, UpdateBlogModel>, res: Response) => {
     const isBlogUpdated = blogsRepository.updateBlog(req.params.id, {
       name: req.body.name,
       description: req.body.description,
@@ -73,18 +72,16 @@ blogsRouter
     })
 
     if (!isBlogUpdated) {
-      res.status(HTTPStatuses.NOTFOUND404).send()
-      return
+      return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
     res.status(HTTPStatuses.NOCONTENT204).send()
   })
-  .delete('/:id', (req: RequestWithParams<URIParamsBlogModel>, res: Response) => {
+  .delete('/:id', authMiddleware, (req: RequestWithParams<URIParamsBlogModel>, res: Response) => {
     const isBlogDeleted = blogsRepository.deleteBlogById(req.params.id)
 
     if (!isBlogDeleted) {
-      res.status(HTTPStatuses.NOTFOUND404).send()
-      return
+      return res.status(HTTPStatuses.NOTFOUND404).send()
     }
     
     res.status(HTTPStatuses.NOCONTENT204).send()

@@ -1,4 +1,6 @@
 import request from 'supertest'
+import * as dotenv from 'dotenv'
+dotenv.config()
 import { app } from '../../src'
 import { PostType, BlogType, HTTPStatuses } from '../../src/types'
 import { postErrorsValidator } from '../../src/errors'
@@ -12,6 +14,7 @@ describe('/api/posts',  () => {
     
     const createdBlog1Responce = await request(app)
       .post('/api/blogs/')
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         name: 'Блог 1',
         description: 'Очень хороший блог 1',
@@ -22,6 +25,7 @@ describe('/api/posts',  () => {
 
     const createdBlog2Responce = await request(app)
       .post('/api/blogs/')
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         name: 'Блог 2',
         description: 'Очень хороший блог 2',
@@ -43,9 +47,32 @@ describe('/api/posts',  () => {
       .expect(HTTPStatuses.NOTFOUND404)
   })
 
-  it('should not create post with incorrect input data', async () => {
+  it('should not be logged in', async () => {
     await request(app)
       .post('/api/posts')
+      .send({
+        title: 'Пост 1',
+        shortDescription: 'Очень хороший пост 1',
+        content: 'Контент очень хорошего поста 1',
+        blogId: createdBlog1.id,
+      })
+      .expect(HTTPStatuses.UNAUTHORIZED401)
+  })
+
+  it('should not create post with incorrect input data', async () => {
+    await request(app)
+    .post('/api/posts')
+    .send({
+      title: '',
+      shortDescription: null,
+      content: '',
+      blogId: '',
+    })
+    .expect(HTTPStatuses.UNAUTHORIZED401)
+    
+    await request(app)
+      .post('/api/posts')
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: '',
         shortDescription: null,
@@ -63,6 +90,7 @@ describe('/api/posts',  () => {
 
     await request(app)
       .post('/api/posts')
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: 'title будет больше 30 символов'.repeat(3),
         shortDescription: 'shortDescription будет больше 500 символов'.repeat(20),
@@ -86,6 +114,7 @@ describe('/api/posts',  () => {
   it('should not create post 1 with incorrect blog id', async () => {
     await request(app)
       .post('/api/posts')
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: 'Пост 1',
         shortDescription: 'Очень хороший пост 1',
@@ -100,6 +129,7 @@ describe('/api/posts',  () => {
   it('should create post 1 with correct input data', async () => {
     const createdPostResponce = await request(app)
       .post('/api/posts')
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: 'Пост 1',
         shortDescription: 'Очень хороший пост 1',
@@ -133,6 +163,7 @@ describe('/api/posts',  () => {
   it('should create post 2 with correct input data', async () => {
     const createdPostResponce = await request(app)
       .post('/api/posts')
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: 'Пост 2',
         shortDescription: 'Очень хороший пост 2',
@@ -162,8 +193,19 @@ describe('/api/posts',  () => {
   })
 
   it('should not update post 1 with incorrect input data', async () => {
-      await request(app)
+    await request(app)
+    .put(`/api/posts/${createdPost1.id}`)
+    .send({
+      title: '',
+      shortDescription: '',
+      content: null,
+      blogId: '',
+    })
+    .expect(HTTPStatuses.UNAUTHORIZED401)
+
+    await request(app)
       .put(`/api/posts/${createdPost1.id}`)
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: '',
         shortDescription: '',
@@ -181,6 +223,7 @@ describe('/api/posts',  () => {
 
       await request(app)
       .put(`/api/posts/${createdPost1.id}`)
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: 'title будет больше 30 символов'.repeat(3),
         shortDescription: 'shortDescription будет больше 500 символов'.repeat(20),
@@ -198,6 +241,7 @@ describe('/api/posts',  () => {
 
       await request(app)
       .put('/api/posts/' + -100)
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: 'Пост 3',
         shortDescription: 'Очень хороший пост 3',
@@ -214,6 +258,7 @@ describe('/api/posts',  () => {
   it('should not update post 1 with incorrect blog id', async () => {
     await request(app)
       .put(`/api/posts/${createdPost1.id}`)
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: 'Пост 3',
         shortDescription: 'Очень хороший пост 3',
@@ -226,6 +271,7 @@ describe('/api/posts',  () => {
   it('should update post 1 with correct input data', async () => {
       await request(app)
       .put(`/api/posts/${createdPost1.id}`)
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .send({
         title: 'Пост 3',
         shortDescription: 'Очень хороший пост 3',
@@ -253,14 +299,21 @@ describe('/api/posts',  () => {
   it('should delete all posts', async () => {
     await request(app)
       .delete('/api/posts/' + -100)
+      .expect(HTTPStatuses.UNAUTHORIZED401)
+
+    await request(app)
+      .delete('/api/posts/' + -100)
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .expect(HTTPStatuses.NOTFOUND404)
 
     await request(app)
       .delete(`/api/posts/${createdPost1.id}`)
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .expect(HTTPStatuses.NOCONTENT204)
 
     await request(app)
       .delete(`/api/posts/${createdPost2.id}`)
+      .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
       .expect(HTTPStatuses.NOCONTENT204)
 
     await request(app)
