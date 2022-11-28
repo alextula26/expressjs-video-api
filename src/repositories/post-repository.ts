@@ -3,11 +3,31 @@ import { db } from '../mocks'
 
 import { getNextStrId } from '../utils'
 
-import { PostType, PostsRepositoryType } from '../types'
+import { RepositoryPostType } from '../types/services'
+import { PostViewModel } from '../types/models'
+import { PostType } from '../types'
 
-export const postRepository: PostsRepositoryType = {
-  findAllPosts: async () => db.posts,
-  findPostById: async (id) => db.posts.find((item) => item.id === id),
+export const getPostViewModel = (dbPost: PostType): PostViewModel => ({
+  id: dbPost.id,
+  title: dbPost.title,
+  shortDescription: dbPost.shortDescription,
+  content: dbPost.content,
+  blogId: dbPost.blogId,
+  blogName: dbPost.blogName,
+})
+
+export const postRepository: RepositoryPostType = {
+  findAllPosts: async () => db.posts.map(getPostViewModel),
+  findPostById: async (id) => {
+    const foundPost: PostType | undefined = db.posts.find((item) => item.id === id)
+
+    if (!foundPost) {
+      return null
+    }
+
+    return getPostViewModel(foundPost)
+  },
+  
   createdPost: async ({ title, shortDescription, content, blogId, blogName }) => {
     const createdPost: PostType = {
       id: getNextStrId(),
@@ -20,9 +40,9 @@ export const postRepository: PostsRepositoryType = {
 
     db.posts.push(createdPost)
 
-    return createdPost
+    return getPostViewModel(createdPost)
   },
-  updatePost: async (id, { title, shortDescription, content, blogId, blogName })=> {  
+  updatePost: async ({ id, title, shortDescription, content, blogId, blogName })=> {  
       const updatedPost: PostType | undefined = db.posts.find((item) => item.id === id)
       
       if (!updatedPost) {

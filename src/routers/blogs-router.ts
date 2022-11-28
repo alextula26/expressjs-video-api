@@ -10,7 +10,6 @@ import {
 
 import {
   HTTPStatuses,
-  BlogType,
   BlogViewModel,
   URIParamsBlogModel,
   CreateBlogModel,
@@ -31,18 +30,10 @@ const middlewares = [
   inputValidationMiddleware
 ]
 
-export const getBlogViewModel = (db: BlogType): BlogViewModel => ({
-  id: db.id,
-  name: db.name,
-  description: db.description,
-  websiteUrl: db.websiteUrl,
-})
-
 blogsRouter
   .get('/', async (_, res: Response<BlogViewModel[]>) => {
     const allBlogs = await blogsRepository.findAllBlogs()
-    const allBlogsResponse = allBlogs.map(getBlogViewModel)
-    res.status(HTTPStatuses.SUCCESS200).send(allBlogsResponse)
+    res.status(HTTPStatuses.SUCCESS200).send(allBlogs)
   })
   .get('/:id', async (req: RequestWithParams<URIParamsBlogModel>, res: Response<BlogViewModel>) => {
     const blogoById = await blogsRepository.findBlogById(req.params.id)
@@ -51,8 +42,7 @@ blogsRouter
       return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
-    const blogoByIdResponse = getBlogViewModel(blogoById)
-    res.status(HTTPStatuses.SUCCESS200).send(blogoByIdResponse)
+    res.status(HTTPStatuses.SUCCESS200).send(blogoById)
   })
   .post('/', middlewares, async (req: RequestWithBody<CreateBlogModel>, res: Response<BlogViewModel | ErrorsMessageType>) => {
     const createdBlog = await blogsRepository.createdBlog({
@@ -61,11 +51,11 @@ blogsRouter
       websiteUrl: req.body.websiteUrl,
     })
 
-    const createdBlogResponse = getBlogViewModel(createdBlog)
-    res.status(HTTPStatuses.CREATED201).send(createdBlogResponse)
+    res.status(HTTPStatuses.CREATED201).send(createdBlog)
   })
   .put('/:id', middlewares, async (req: RequestWithParamsAndBody<URIParamsBlogModel, UpdateBlogModel>, res: Response) => {
-    const isBlogUpdated = await blogsRepository.updateBlog(req.params.id, {
+    const isBlogUpdated = await blogsRepository.updateBlog({
+      id: req.params.id,
       name: req.body.name,
       description: req.body.description,
       websiteUrl: req.body.websiteUrl,

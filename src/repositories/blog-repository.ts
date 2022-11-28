@@ -3,11 +3,28 @@ import { db } from '../mocks'
 
 import { getNextStrId } from '../utils'
 
-import { BlogType, BlogsRepositoryType } from '../types'
+import { RepositoryBlogType } from '../types/services'
+import { BlogViewModel } from '../types/models'
+import { BlogType } from '../types'
 
-export const blogsRepository: BlogsRepositoryType = {
-  findAllBlogs: async () => db.blogs,
-  findBlogById: async (id) => db.blogs.find((item) => item.id === id),
+export const getBlogViewModel = (db: BlogType): BlogViewModel => ({
+  id: db.id,
+  name: db.name,
+  description: db.description,
+  websiteUrl: db.websiteUrl,
+})
+
+export const blogsRepository: RepositoryBlogType = {
+  findAllBlogs: async () => db.blogs.map(getBlogViewModel),
+  findBlogById: async (id) => {
+    const foundBlog: BlogType | undefined = db.blogs.find((item) => item.id === id)
+
+    if (!foundBlog) {
+      return null
+    }
+
+    return getBlogViewModel(foundBlog)
+  },
   createdBlog: async ({ name, description, websiteUrl }) => {
     const createdBlog: BlogType = {
       id: getNextStrId(),
@@ -18,9 +35,9 @@ export const blogsRepository: BlogsRepositoryType = {
 
     db.blogs.push(createdBlog)
 
-    return createdBlog
+    return getBlogViewModel(createdBlog)
   },
-  updateBlog: async (id, { name, description, websiteUrl }) => {      
+  updateBlog: async ({id, name, description, websiteUrl }) => {      
       const updatedBlog: BlogType | undefined = db.blogs.find((item) => item.id === id)
 
       if (!updatedBlog) {

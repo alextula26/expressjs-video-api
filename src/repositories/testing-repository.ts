@@ -1,8 +1,8 @@
 import { db } from '../mocks'
 
-import { TestingRepositoryType } from '../types'
+import { RepositoryTestingType } from '../types/services'
 
-export const testingRepository: TestingRepositoryType = {
+export const testingRepository: RepositoryTestingType = {
   deleteAll: async () => {
     db.videos = []
     db.posts = []

@@ -12,7 +12,6 @@ import {
 
 import {
   HTTPStatuses,
-  PostType,
   PostViewModel,
   URIParamsPostModel,
   CreatePostModel,
@@ -24,15 +23,6 @@ import {
 } from '../types'
 
 export const postsRouter = Router()
-
-export const getPostViewModel = (dbPost: PostType): PostViewModel => ({
-  id: dbPost.id,
-  title: dbPost.title,
-  shortDescription: dbPost.shortDescription,
-  content: dbPost.content,
-  blogId: dbPost.blogId,
-  blogName: dbPost.blogName,
-})
 
 const middlewares = [
   authMiddleware,
@@ -46,8 +36,7 @@ const middlewares = [
 postsRouter
   .get('/', async (_, res: Response<PostViewModel[]>) => {
     const allPosts = await postRepository.findAllPosts()
-    const allPostsResponse = allPosts.map(getPostViewModel)
-    res.status(HTTPStatuses.SUCCESS200).send(allPostsResponse)
+    res.status(HTTPStatuses.SUCCESS200).send(allPosts)
   })
   .get('/:id', async (req: RequestWithParams<URIParamsPostModel>, res: Response<PostViewModel>) => {
     const postById = await postRepository.findPostById(req.params.id)
@@ -56,8 +45,7 @@ postsRouter
       return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
-    const postByIdResponse = getPostViewModel(postById)
-    res.status(HTTPStatuses.SUCCESS200).send(postByIdResponse)
+    res.status(HTTPStatuses.SUCCESS200).send(postById)
   })
   .post('/', middlewares, async (req: RequestWithBody<CreatePostModel>, res: Response<PostViewModel | ErrorsMessageType>) => {
     const blogById = await blogsRepository.findBlogById(req.body.blogId)
@@ -74,8 +62,7 @@ postsRouter
       blogName: blogById.name,
     })
 
-    const createdPostResponse = getPostViewModel(createdPost)
-    res.status(HTTPStatuses.CREATED201).send(createdPostResponse)
+    res.status(HTTPStatuses.CREATED201).send(createdPost)
   })
   .put('/:id', middlewares, async (req: RequestWithParamsAndBody<URIParamsPostModel, UpdatePostModel>, res: Response) => {
     const blogById = await blogsRepository.findBlogById(req.body.blogId)
@@ -84,7 +71,8 @@ postsRouter
       return res.status(HTTPStatuses.BADREQUEST400).send()
     }
 
-    const isPostUpdated = await postRepository.updatePost(req.params.id, {
+    const isPostUpdated = await postRepository.updatePost({
+      id: req.params.id,
       title: req.body.title,
       shortDescription: req.body.shortDescription,
       content: req.body.content,
