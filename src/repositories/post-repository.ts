@@ -3,30 +3,12 @@ import { db } from '../mocks'
 
 import { getNextStrId } from '../utils'
 
-import {
-  PostType,
-  CreatePostModel,
-  UpdatePostModel,
-} from '../types'
+import { PostType, PostsRepositoryType } from '../types'
 
-export const postRepository = {
-  findAllPosts: (): PostType[] => db.posts,
-  findPostById: (id: string): PostType | undefined => (
-    db.posts.find((item) => item.id === id)
-  ),
-  createdPost: ({
-    title,
-    shortDescription,
-    content,
-    blogId,
-    blogName,
-  }: {
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-    blogName: string,
-  }): PostType => {
+export const postRepository: PostsRepositoryType = {
+  findAllPosts: async () => db.posts,
+  findPostById: async (id) => db.posts.find((item) => item.id === id),
+  createdPost: async ({ title, shortDescription, content, blogId, blogName }) => {
     const createdPost: PostType = {
       id: getNextStrId(),
       title: trim(String(title)),
@@ -40,22 +22,8 @@ export const postRepository = {
 
     return createdPost
   },
-  updatePost: (
-    id: string,
-    {
-      title,
-      shortDescription,
-      content,
-      blogId,
-      blogName,
-    }: {
-      title: string,
-      shortDescription: string,
-      content: string,
-      blogId: string,
-      blogName: string,
-    }): boolean => {  
-      const updatedPost = db.posts.find((item) => item.id === id)
+  updatePost: async (id, { title, shortDescription, content, blogId, blogName })=> {  
+      const updatedPost: PostType | undefined = db.posts.find((item) => item.id === id)
       
       if (!updatedPost) {
         return false
@@ -70,8 +38,8 @@ export const postRepository = {
 
       return true    
   },
-  deletePostById: (id: string): boolean => {
-    const postById = db.posts.find(item => item.id === id)
+  deletePostById: async (id) => {
+    const postById: PostType | undefined = db.posts.find(item => item.id === id)
 
     if (!postById) {
       return false

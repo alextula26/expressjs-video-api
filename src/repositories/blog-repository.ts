@@ -3,18 +3,12 @@ import { db } from '../mocks'
 
 import { getNextStrId } from '../utils'
 
-import {
-  BlogType,
-  CreateBlogModel,
-  UpdateBlogModel,
-} from '../types'
+import { BlogType, BlogsRepositoryType } from '../types'
 
-export const blogsRepository = {
-  findAllBlogs: (): BlogType[] => db.blogs,
-  findBlogById: (id: string): BlogType | undefined => (
-    db.blogs.find((item) => item.id === id)
-  ),
-  createdBlog: ({ name, description, websiteUrl }: CreateBlogModel): BlogType => {
+export const blogsRepository: BlogsRepositoryType = {
+  findAllBlogs: async () => db.blogs,
+  findBlogById: async (id) => db.blogs.find((item) => item.id === id),
+  createdBlog: async ({ name, description, websiteUrl }) => {
     const createdBlog: BlogType = {
       id: getNextStrId(),
       name: trim(String(name)),
@@ -26,11 +20,8 @@ export const blogsRepository = {
 
     return createdBlog
   },
-  updateBlog: (
-    id: string,
-    { name, description, websiteUrl }: UpdateBlogModel
-    ): boolean => {      
-      const updatedBlog = db.blogs.find((item) => item.id === id)
+  updateBlog: async (id, { name, description, websiteUrl }) => {      
+      const updatedBlog: BlogType | undefined = db.blogs.find((item) => item.id === id)
 
       if (!updatedBlog) {
         return false
@@ -43,8 +34,8 @@ export const blogsRepository = {
 
       return true    
   },
-  deleteBlogById: (id: string): boolean => {
-    const blogById = db.blogs.find(item => item.id === id)
+  deleteBlogById: async (id) => {
+    const blogById: BlogType | undefined = db.blogs.find(item => item.id === id)
 
     if (!blogById) {
       return false

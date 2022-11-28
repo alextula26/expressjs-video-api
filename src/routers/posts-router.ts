@@ -44,13 +44,13 @@ const middlewares = [
 ]
 
 postsRouter
-  .get('/', (_, res: Response<PostViewModel[]>) => {
-    const allPosts = postRepository.findAllPosts()
+  .get('/', async (_, res: Response<PostViewModel[]>) => {
+    const allPosts = await postRepository.findAllPosts()
     const allPostsResponse = allPosts.map(getPostViewModel)
     res.status(HTTPStatuses.SUCCESS200).send(allPostsResponse)
   })
-  .get('/:id', (req: RequestWithParams<URIParamsPostModel>, res: Response<PostViewModel>) => {
-    const postById = postRepository.findPostById(req.params.id)
+  .get('/:id', async (req: RequestWithParams<URIParamsPostModel>, res: Response<PostViewModel>) => {
+    const postById = await postRepository.findPostById(req.params.id)
 
     if (!postById) {
       return res.status(HTTPStatuses.NOTFOUND404).send()
@@ -59,14 +59,14 @@ postsRouter
     const postByIdResponse = getPostViewModel(postById)
     res.status(HTTPStatuses.SUCCESS200).send(postByIdResponse)
   })
-  .post('/', middlewares, (req: RequestWithBody<CreatePostModel>, res: Response<PostViewModel | ErrorsMessageType>) => {
-    const blogById = blogsRepository.findBlogById(req.body.blogId)
+  .post('/', middlewares, async (req: RequestWithBody<CreatePostModel>, res: Response<PostViewModel | ErrorsMessageType>) => {
+    const blogById = await blogsRepository.findBlogById(req.body.blogId)
 
     if (isEmpty(blogById)) {
       return res.status(HTTPStatuses.BADREQUEST400).send()
     }
 
-    const createdPost = postRepository.createdPost({
+    const createdPost = await postRepository.createdPost({
       title: req.body.title,
       shortDescription: req.body.shortDescription,
       content: req.body.content,
@@ -77,14 +77,14 @@ postsRouter
     const createdPostResponse = getPostViewModel(createdPost)
     res.status(HTTPStatuses.CREATED201).send(createdPostResponse)
   })
-  .put('/:id', middlewares, (req: RequestWithParamsAndBody<URIParamsPostModel, UpdatePostModel>, res: Response) => {
-    const blogById = blogsRepository.findBlogById(req.body.blogId)
+  .put('/:id', middlewares, async (req: RequestWithParamsAndBody<URIParamsPostModel, UpdatePostModel>, res: Response) => {
+    const blogById = await blogsRepository.findBlogById(req.body.blogId)
 
     if (isEmpty(blogById)) {
       return res.status(HTTPStatuses.BADREQUEST400).send()
     }
 
-    const isPostUpdated = postRepository.updatePost(req.params.id, {
+    const isPostUpdated = await postRepository.updatePost(req.params.id, {
       title: req.body.title,
       shortDescription: req.body.shortDescription,
       content: req.body.content,
@@ -98,8 +98,8 @@ postsRouter
 
     res.status(HTTPStatuses.NOCONTENT204).send()
   })
-  .delete('/:id', authMiddleware, (req: RequestWithParams<URIParamsPostModel>, res: Response) => {
-    const isPostDeleted = postRepository.deletePostById(req.params.id)
+  .delete('/:id', authMiddleware, async (req: RequestWithParams<URIParamsPostModel>, res: Response) => {
+    const isPostDeleted = await postRepository.deletePostById(req.params.id)
 
     if (!isPostDeleted) {
       return res.status(HTTPStatuses.NOTFOUND404).send()
