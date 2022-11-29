@@ -1,6 +1,6 @@
 import { Router, Response } from "express";
 import { isEmpty } from 'lodash'
-import { videoRepository } from '../repositories'
+import { videoRepository } from '../repositories/video/video-repository'
 import { getVideoErrors } from '../errors'
 import {
   HTTPStatuses,

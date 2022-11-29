@@ -1,11 +1,11 @@
 import { trim } from 'lodash'
-import { db } from '../mocks'
+import { db } from '../../mocks'
 
-import { getNextStrId } from '../utils'
+import { getNextStrId } from '../../utils'
 
-import { RepositoryPostType } from '../types/services'
-import { PostViewModel } from '../types/models'
-import { PostType } from '../types'
+import { RepositoryPostType } from '../../types/services'
+import { PostViewModel } from '../../types/models'
+import { PostType } from '../../types'
 
 export const getPostViewModel = (dbPost: PostType): PostViewModel => ({
   id: dbPost.id,
@@ -26,8 +26,7 @@ export const postRepository: RepositoryPostType = {
     }
 
     return getPostViewModel(foundPost)
-  },
-  
+  },  
   createdPost: async ({ title, shortDescription, content, blogId, blogName }) => {
     const createdPost: PostType = {
       id: getNextStrId(),

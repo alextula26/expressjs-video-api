@@ -1,11 +1,11 @@
 import { trim } from 'lodash'
-import { db } from '../mocks'
+import { db } from '../../mocks'
 
-import { getNextStrId } from '../utils'
+import { getNextStrId } from '../../utils'
 
-import { RepositoryBlogType } from '../types/services'
-import { BlogViewModel } from '../types/models'
-import { BlogType } from '../types'
+import { RepositoryBlogType } from '../../types/services'
+import { BlogViewModel } from '../../types/models'
+import { BlogType } from '../../types'
 
 export const getBlogViewModel = (db: BlogType): BlogViewModel => ({
   id: db.id,
@@ -14,7 +14,7 @@ export const getBlogViewModel = (db: BlogType): BlogViewModel => ({
   websiteUrl: db.websiteUrl,
 })
 
-export const blogsRepository: RepositoryBlogType = {
+export const blogRepository: RepositoryBlogType = {
   findAllBlogs: async () => db.blogs.map(getBlogViewModel),
   findBlogById: async (id) => {
     const foundBlog: BlogType | undefined = db.blogs.find((item) => item.id === id)

@@ -1,11 +1,11 @@
 import { isEmpty, trim } from 'lodash'
-import { db } from '../mocks'
+import { db } from '../../mocks'
 
-import { getNextId } from '../utils'
+import { getNextId } from '../../utils'
 
-import { RepositoryVideoType } from '../types/services'
-import { VideoViewModel } from '../types/models'
-import { VideoType } from '../types'
+import { RepositoryVideoType } from '../../types/services'
+import { VideoViewModel } from '../../types/models'
+import { VideoType } from '../../types'
 
 export const getVideoViewModel = (db: VideoType): VideoViewModel => ({
   id: db.id,
