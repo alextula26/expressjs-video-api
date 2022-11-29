@@ -1,6 +1,5 @@
 import { trim } from 'lodash'
-import { db } from '../../mocks'
-import { client } from '../../repositories/db'
+import { blogCollection } from '../../repositories/db'
 
 import { getNextStrId } from '../../utils'
 
@@ -15,16 +14,14 @@ export const getBlogViewModel = (db: BlogType): BlogViewModel => ({
   websiteUrl: db.websiteUrl,
 })
 
-const collection = client.db('bloggers').collection<BlogType>('blogs');
-
 export const blogRepository: RepositoryBlogType = {
   findAllBlogs: async () => {
-    const blogs = await collection.find().toArray()
+    const blogs = await blogCollection.find().toArray()
 
     return blogs.map(getBlogViewModel)
   },
   findBlogById: async (id) => {
-    const foundBlog: BlogType | null = await collection.findOne({ id })
+    const foundBlog: BlogType | null = await blogCollection.findOne({ id })
 
     if (!foundBlog) {
       return null
@@ -40,12 +37,12 @@ export const blogRepository: RepositoryBlogType = {
       websiteUrl: trim(String(websiteUrl)),
     }
 
-    await collection.insertOne(createdBlog)
+    await blogCollection.insertOne(createdBlog)
 
     return getBlogViewModel(createdBlog)
   },
   updateBlog: async ({id, name, description, websiteUrl }) => {      
-    const { matchedCount } = await collection.updateOne({ id }, {
+    const { matchedCount } = await blogCollection.updateOne({ id }, {
       $set: {
         name: trim(String(name)),
         description: trim(String(description)),
@@ -56,7 +53,7 @@ export const blogRepository: RepositoryBlogType = {
     return matchedCount === 1    
   },
   deleteBlogById: async (id) => {
-    const { deletedCount } = await collection.deleteOne({ id })
+    const { deletedCount } = await blogCollection.deleteOne({ id })
 
     return deletedCount === 1
   },
