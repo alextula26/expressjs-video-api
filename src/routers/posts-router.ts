@@ -50,7 +50,7 @@ postsRouter
   })
   .post('/', middlewares, async (req: RequestWithBody<CreatePostModel>, res: Response<PostViewModel | ErrorsMessageType>) => {
     const blogById = await blogRepository.findBlogById(req.body.blogId)
-    console.log('post blogById', blogById)
+
     if (isEmpty(blogById)) {
       return res.status(HTTPStatuses.BADREQUEST400).send()
     }

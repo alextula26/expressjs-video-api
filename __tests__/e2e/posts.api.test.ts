@@ -127,7 +127,6 @@ describe('/api/posts',  () => {
   let createdPost1: PostType
 
   it('should create post 1 with correct input data', async () => {
-    console.log('should create post 1 createdBlog1', createdBlog1)
     const createdPostResponce = await request(app)
       .post('/api/posts')
       .set('Authorization', `Basic ${Buffer.from(`${process.env.LOGIN}:${process.env.PASSWORD}`, 'utf8').toString('base64')}`)
