@@ -1,7 +1,7 @@
 import { Router, Response } from "express";
 import { isEmpty } from 'lodash'
-import { postRepository } from '../repositories/post/post-in-memory-repository'
-import { blogRepository } from '../repositories/blog/blog-in-memory-repository'
+import { postRepository } from '../repositories/post/post-db-repository'
+import { blogRepository } from '../repositories/blog/blog-db-repository'
 import {
   authMiddleware,
   titlePostValidation,
@@ -50,7 +50,7 @@ postsRouter
   })
   .post('/', middlewares, async (req: RequestWithBody<CreatePostModel>, res: Response<PostViewModel | ErrorsMessageType>) => {
     const blogById = await blogRepository.findBlogById(req.body.blogId)
-
+    console.log('post blogById', blogById)
     if (isEmpty(blogById)) {
       return res.status(HTTPStatuses.BADREQUEST400).send()
     }

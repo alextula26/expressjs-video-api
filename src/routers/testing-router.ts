@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { HTTPStatuses } from '../types'
 
-import { testingRepository } from '../repositories/testing/testing-repository'
+import { testingRepository } from '../repositories/testing/testing-in-memory-repository'
 
 export const testingRouter = Router()
 
