@@ -39,6 +39,21 @@ export const blogRepository: RepositoryBlogType = {
 
     return this._getBlogViewModel(createdBlog)
   },
+  async createdPostByBlogId({ title, shortDescription, content, blogId, blogName }) {
+    const createdPost: PostType = {
+      id: getNextStrId(),
+      title: trim(String(title)),
+      shortDescription: trim(String(shortDescription)),
+      content: trim(String(content)),
+      blogId,
+      blogName,
+      createdAt: new Date().toISOString(),
+    }
+
+    await postCollection.insertOne(createdPost)
+
+    return this._getPostViewModel(createdPost)
+  },
   async updateBlog({id, name, description, websiteUrl }) {      
     const { matchedCount } = await blogCollection.updateOne({ id }, {
       $set: {
@@ -62,6 +77,17 @@ export const blogRepository: RepositoryBlogType = {
       description: dbBlog.description,
       websiteUrl: dbBlog.websiteUrl,
       createdAt: dbBlog.createdAt,
+    }
+  },
+  _getPostViewModel(dbPost) {
+    return {
+      id: dbPost.id,
+      title: dbPost.title,
+      shortDescription: dbPost.shortDescription,
+      content: dbPost.content,
+      blogId: dbPost.blogId,
+      blogName: dbPost.blogName,
+      createdAt: dbPost.createdAt,
     }
   },
   _getBlogsViewModelDetail(dbBlogs) {
