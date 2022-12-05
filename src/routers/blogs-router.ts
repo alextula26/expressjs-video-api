@@ -11,7 +11,10 @@ import {
 import {
   HTTPStatuses,
   BlogViewModel,
+  BlogsViewModelDetail,
+  PostsViewModelDetail,
   URIParamsBlogModel,
+  URIParamsPostsByBlogId,
   CreateBlogModel,
   UpdateBlogModel,
   RequestWithBody,
@@ -31,18 +34,29 @@ const middlewares = [
 ]
 
 blogsRouter
-  .get('/', async (_, res: Response<BlogViewModel[]>) => {
+  .get('/', async (_, res: Response<BlogsViewModelDetail>) => {
     const allBlogs = await blogRepository.findAllBlogs()
     res.status(HTTPStatuses.SUCCESS200).send(allBlogs)
   })
   .get('/:id', async (req: RequestWithParams<URIParamsBlogModel>, res: Response<BlogViewModel>) => {
-    const blogoById = await blogRepository.findBlogById(req.params.id)
+    const blogById = await blogRepository.findBlogById(req.params.id)
 
-    if (!blogoById) {
+    if (!blogById) {
       return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
-    res.status(HTTPStatuses.SUCCESS200).send(blogoById)
+    res.status(HTTPStatuses.SUCCESS200).send(blogById)
+  })
+  .get('/:blogId/posts', async (req: RequestWithParams<URIParamsPostsByBlogId>, res: Response<PostsViewModelDetail>) => {
+    const blogById = await blogRepository.findBlogById(req.params.blogId)
+
+    if (!blogById) {
+      return res.status(HTTPStatuses.NOTFOUND404).send()
+    }
+
+    const postsByBlogId = await blogRepository.findPostsByBlogId(req.params.blogId)
+
+    res.status(HTTPStatuses.SUCCESS200).send(postsByBlogId)
   })
   .post('/', middlewares, async (req: RequestWithBody<CreateBlogModel>, res: Response<BlogViewModel | ErrorsMessageType>) => {
     const createdBlog = await blogRepository.createdBlog({

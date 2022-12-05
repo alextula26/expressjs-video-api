@@ -14,6 +14,7 @@ import {
 import {
   HTTPStatuses,
   PostViewModel,
+  PostsViewModelDetail,
   URIParamsPostModel,
   CreatePostModel,
   UpdatePostModel,
@@ -35,7 +36,7 @@ const middlewares = [
 ]
 
 postsRouter
-  .get('/', async (_, res: Response<PostViewModel[]>) => {
+  .get('/', async (_, res: Response<PostsViewModelDetail>) => {
     const allPosts = await postRepository.findAllPosts()
     res.status(HTTPStatuses.SUCCESS200).send(allPosts)
   })

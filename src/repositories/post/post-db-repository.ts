@@ -4,35 +4,24 @@ import { postCollection } from '../db'
 import { getNextStrId } from '../../utils'
 
 import { RepositoryPostType } from '../../types/services'
-import { PostViewModel } from '../../types/models'
 import { PostType } from '../../types'
 
-export const getPostViewModel = (db: PostType): PostViewModel => ({
-  id: db.id,
-  title: db.title,
-  shortDescription: db.shortDescription,
-  content: db.content,
-  blogId: db.blogId,
-  blogName: db.blogName,
-  createdAt: db.createdAt,
-})
-
 export const postRepository: RepositoryPostType = {
-  findAllPosts: async () => {
-    const blogs = await postCollection.find().toArray()
+  async findAllPosts() {
+    const posts: PostType[] = await postCollection.find().toArray()
 
-    return blogs.map(getPostViewModel)
+    return this._getPostsViewModelDetail(posts)
   },
-  findPostById: async (id) => {
+  async findPostById(id) {
     const foundPost: PostType | null = await postCollection.findOne({ id })
 
     if (!foundPost) {
       return null
     }
 
-    return getPostViewModel(foundPost)
+    return this._getPostViewModel(foundPost)
   },
-  createdPost: async ({ title, shortDescription, content, blogId, blogName }) => {
+  async createdPost({ title, shortDescription, content, blogId, blogName }) {
     const createdPost: PostType = {
       id: getNextStrId(),
       title: trim(String(title)),
@@ -45,9 +34,9 @@ export const postRepository: RepositoryPostType = {
 
     await postCollection.insertOne(createdPost)
 
-    return getPostViewModel(createdPost)
+    return this._getPostViewModel(createdPost)
   },
-  updatePost: async ({ id, title, shortDescription, content, blogId, blogName })=> {  
+  async updatePost({ id, title, shortDescription, content, blogId, blogName }) {  
     const { matchedCount } = await postCollection.updateOne({ id }, {
       $set: {
         title: trim(String(title)),
@@ -60,9 +49,37 @@ export const postRepository: RepositoryPostType = {
 
     return matchedCount === 1   
   },
-  deletePostById: async (id) => {
+  async deletePostById(id) {
     const { deletedCount } = await postCollection.deleteOne({ id })
 
     return deletedCount === 1
   },
+  _getPostViewModel(dbPost) {
+    return {
+      id: dbPost.id,
+      title: dbPost.title,
+      shortDescription: dbPost.shortDescription,
+      content: dbPost.content,
+      blogId: dbPost.blogId,
+      blogName: dbPost.blogName,
+      createdAt: dbPost.createdAt,
+    }
+  },
+  _getPostsViewModelDetail(dbPosts) {
+    return {
+      pagesCount: 0,
+      page: 0,
+      pageSize: 0,
+      totalCount: 0,
+      items: dbPosts.map(post => ({
+        id: post.id,
+        title: post.title,
+        shortDescription: post.shortDescription,
+        content: post.content,
+        blogId: post.blogId,
+        blogName: post.blogName,
+        createdAt: post.createdAt,
+      })),
+    }
+  },  
 }

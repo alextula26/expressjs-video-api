@@ -1,4 +1,5 @@
 export { PostViewModel } from './PostViewModel'
+export { PostsViewModelDetail } from './PostsViewModelDetail'
 export { CreatePostModel } from './CreatePostModel'
 export { UpdatePostModel } from './UpdatePostModel'
 export { URIParamsPostModel } from './URIParamsPostModel'

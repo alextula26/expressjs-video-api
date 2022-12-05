@@ -1,4 +1,6 @@
 export { BlogViewModel } from './BlogViewModel'
+export { BlogsViewModelDetail } from './BlogsViewModelDetail'
 export { CreateBlogModel } from './CreateBlogModel'
 export { UpdateBlogModel } from './UpdateBlogModel'
 export { URIParamsBlogModel } from './URIParamsBlogModel'
+export { URIParamsPostsByBlogId } from './URIParamsPostsByBlogId'
