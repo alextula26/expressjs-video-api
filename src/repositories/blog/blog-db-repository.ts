@@ -1,7 +1,7 @@
 import { trim } from 'lodash'
 import { blogCollection, postCollection } from '../../repositories/db'
 
-import { getNextStrId, getSortDirectionNumber } from '../../utils'
+import { getNextStrId } from '../../utils'
 import { RepositoryBlogType, BlogType, PostType, SortDirection  } from '../../types'
 
 export const blogRepository: RepositoryBlogType = {
@@ -13,7 +13,7 @@ export const blogRepository: RepositoryBlogType = {
     sortDirection =  SortDirection.ASC,
   }) {
     const filter: any = {}
-    const sort: any = { [sortBy]: getSortDirectionNumber(sortDirection)}
+    const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
     
     if (searchNameTerm) {
       filter.name = { $regex: searchNameTerm }
@@ -22,6 +22,8 @@ export const blogRepository: RepositoryBlogType = {
     const blogs: BlogType[] = await blogCollection
       .find(filter)
       .sort(sort)
+      // .skip(pageNumber)
+      .limit(+pageSize)
       .toArray()
 
     return this._getBlogsViewModelDetail(blogs)
@@ -43,7 +45,7 @@ export const blogRepository: RepositoryBlogType = {
     sortDirection =  SortDirection.ASC,
   }) {
     const filter: any = { blogId: { $eq: blogId } }
-    const sort: any = { [sortBy]: getSortDirectionNumber(sortDirection)}
+    const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
 
     if (searchNameTerm) {
       filter.title = { $regex: searchNameTerm }
@@ -52,6 +54,8 @@ export const blogRepository: RepositoryBlogType = {
     const posts: PostType[] = await postCollection
       .find(filter)
       .sort(sort)
+      // .skip(pageNumber)
+      .limit(+pageSize)
       .toArray()
 
     return this._getPostsViewModelDetail(posts)

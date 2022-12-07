@@ -54,7 +54,7 @@ blogsRouter
     const allBlogs = await blogRepository.findAllBlogs({
       searchNameTerm: req.query.searchNameTerm,
       pageNumber: req.query.pageNumber, 
-      pageSize: req.query.pageNumber,
+      pageSize: req.query.pageSize,
       sortBy: req.query.sortBy,
       sortDirection: req.query.sortDirection,
     })
@@ -80,7 +80,7 @@ blogsRouter
     const postsByBlogId = await blogRepository.findPostsByBlogId(req.params.blogId, {
       searchNameTerm: req.query.searchNameTerm,
       pageNumber: req.query.pageNumber, 
-      pageSize: req.query.pageNumber,
+      pageSize: req.query.pageSize,
       sortBy: req.query.sortBy,
       sortDirection: req.query.sortDirection,
     })
