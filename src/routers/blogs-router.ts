@@ -19,12 +19,15 @@ import {
   PostsViewModelDetail,
   URIParamsBlogModel,
   URIParamsPostsByBlogId,
+  QueryBlogModel,
   CreateBlogModel,
   CreatePostModelWithoutBlogId,
   UpdateBlogModel,
   RequestWithBody,
+  RequestWithQuery,
   RequestWithParams,
   RequestWithParamsAndBody,
+  RequestWithParamsAndQuery,
   ErrorsMessageType,
 } from '../types'
 
@@ -47,8 +50,15 @@ const middlewaresPost = [
 ]
 
 blogsRouter
-  .get('/', async (_, res: Response<BlogsViewModelDetail>) => {
-    const allBlogs = await blogRepository.findAllBlogs()
+  .get('/', async (req: RequestWithQuery<QueryBlogModel>, res: Response<BlogsViewModelDetail>) => {
+    const allBlogs = await blogRepository.findAllBlogs({
+      searchNameTerm: req.query.searchNameTerm,
+      pageNumber: req.query.pageNumber, 
+      pageSize: req.query.pageNumber,
+      sortBy: req.query.sortBy,
+      sortDirection: req.query.sortDirection,
+    })
+
     res.status(HTTPStatuses.SUCCESS200).send(allBlogs)
   })
   .get('/:id', async (req: RequestWithParams<URIParamsBlogModel>, res: Response<BlogViewModel>) => {
@@ -60,14 +70,20 @@ blogsRouter
 
     res.status(HTTPStatuses.SUCCESS200).send(blogById)
   })
-  .get('/:blogId/posts', async (req: RequestWithParams<URIParamsPostsByBlogId>, res: Response<PostsViewModelDetail>) => {
+  .get('/:blogId/posts', async (req: RequestWithParamsAndQuery<URIParamsPostsByBlogId, QueryBlogModel>, res: Response<PostsViewModelDetail>) => {
     const blogById = await blogRepository.findBlogById(req.params.blogId)
 
     if (!blogById) {
       return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
-    const postsByBlogId = await blogRepository.findPostsByBlogId(req.params.blogId)
+    const postsByBlogId = await blogRepository.findPostsByBlogId(req.params.blogId, {
+      searchNameTerm: req.query.searchNameTerm,
+      pageNumber: req.query.pageNumber, 
+      pageSize: req.query.pageNumber,
+      sortBy: req.query.sortBy,
+      sortDirection: req.query.sortDirection,
+    })
 
     res.status(HTTPStatuses.SUCCESS200).send(postsByBlogId)
   })

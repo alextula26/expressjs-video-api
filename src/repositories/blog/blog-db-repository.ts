@@ -1,14 +1,28 @@
 import { trim } from 'lodash'
 import { blogCollection, postCollection } from '../../repositories/db'
 
-import { getNextStrId } from '../../utils'
-
-import { RepositoryBlogType } from '../../types/services'
-import { BlogType, PostType } from '../../types'
+import { getNextStrId, getSortDirectionNumber } from '../../utils'
+import { RepositoryBlogType, BlogType, PostType, SortDirection  } from '../../types'
 
 export const blogRepository: RepositoryBlogType = {
-  async findAllBlogs() {
-    const blogs: BlogType[] = await blogCollection.find().toArray()
+  async findAllBlogs({
+    searchNameTerm = null,
+    pageNumber = 1,
+    pageSize = 10,
+    sortBy = 'createdAt',
+    sortDirection =  SortDirection.ASC,
+  }) {
+    const filter: any = {}
+    const sort: any = { [sortBy]: getSortDirectionNumber(sortDirection)}
+    
+    if (searchNameTerm) {
+      filter.name = { $regex: searchNameTerm }
+    }
+
+    const blogs: BlogType[] = await blogCollection
+      .find(filter)
+      .sort(sort)
+      .toArray()
 
     return this._getBlogsViewModelDetail(blogs)
   },
@@ -21,8 +35,24 @@ export const blogRepository: RepositoryBlogType = {
 
     return this._getBlogViewModel(foundBlog)
   },
-  async findPostsByBlogId(blogId) {
-    const posts: PostType[] = await postCollection.find({ blogId: { $eq: blogId } }).toArray()
+  async findPostsByBlogId(blogId, {
+    searchNameTerm = null,
+    pageNumber = 1,
+    pageSize = 10,
+    sortBy = 'createdAt',
+    sortDirection =  SortDirection.ASC,
+  }) {
+    const filter: any = { blogId: { $eq: blogId } }
+    const sort: any = { [sortBy]: getSortDirectionNumber(sortDirection)}
+
+    if (searchNameTerm) {
+      filter.title = { $regex: searchNameTerm }
+    }
+
+    const posts: PostType[] = await postCollection
+      .find(filter)
+      .sort(sort)
+      .toArray()
 
     return this._getPostsViewModelDetail(posts)
   },

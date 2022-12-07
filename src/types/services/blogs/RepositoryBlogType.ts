@@ -1,4 +1,4 @@
-import { BlogViewModel, PostViewModel, BlogsViewModelDetail, PostsViewModelDetail } from '../../models'
+import { BlogViewModel, PostViewModel, BlogsViewModelDetail, PostsViewModelDetail, QueryBlogModel, SortDirection } from '../../models'
 import { BlogType, PostType } from '../../schema'
 
 export type CreaetBlogService = {
@@ -23,9 +23,9 @@ export type CreaetPostService = {
 }
 
 export type RepositoryBlogType = {
-  findAllBlogs: () => Promise<BlogsViewModelDetail>
+  findAllBlogs: ({ searchNameTerm, pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection =  SortDirection.ASC}: QueryBlogModel) => Promise<BlogsViewModelDetail>
   findBlogById: (id: string) => Promise<BlogViewModel | null>
-  findPostsByBlogId: (blogId: string) => Promise<PostsViewModelDetail>
+  findPostsByBlogId: (blogId: string, { searchNameTerm, pageNumber, pageSize, sortBy, sortDirection }: QueryBlogModel) => Promise<PostsViewModelDetail>
   createdBlog: ({ name, description, websiteUrl }: CreaetBlogService) => Promise<BlogViewModel>
   createdPostByBlogId: ({ title, shortDescription, content, blogId, blogName }: CreaetPostService) => Promise<PostViewModel>
   updateBlog: ({ id, name, description, websiteUrl }: UpdateBlogService) => Promise<boolean>
