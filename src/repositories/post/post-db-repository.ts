@@ -3,14 +3,41 @@ import { postCollection } from '../db'
 
 import { getNextStrId } from '../../utils'
 
-import { RepositoryPostType } from '../../types/services'
-import { PostType } from '../../types'
+import { RepositoryPostType, PostType, SortDirection } from '../../types'
 
 export const postRepository: RepositoryPostType = {
-  async findAllPosts() {
-    const posts: PostType[] = await postCollection.find().toArray()
+  async findAllPosts({
+    searchNameTerm = null,
+    pageNumber = 1,
+    pageSize = 10,
+    sortBy = 'createdAt',
+    sortDirection =  SortDirection.ASC,
+  }) {
+    const filter: any = {}
+    const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
+    
+    if (searchNameTerm) {
+      filter.name = { $regex: searchNameTerm }
+    }
 
-    return this._getPostsViewModelDetail(posts)
+    const totalCount = await postCollection.count(filter)
+    const pagesCount = Math.ceil(totalCount / pageSize)
+    const skip = (+pageNumber - 1) * +pageSize
+
+    const posts: PostType[] = await postCollection
+      .find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(+pageSize)
+      .toArray()
+
+    return this._getPostsViewModelDetail({
+      items: posts,
+      totalCount,
+      pagesCount,
+      page: +pageNumber,
+      pageSize: +pageSize,
+    })
   },
   async findPostById(id) {
     const foundPost: PostType | null = await postCollection.findOne({ id })
@@ -65,20 +92,20 @@ export const postRepository: RepositoryPostType = {
       createdAt: dbPost.createdAt,
     }
   },
-  _getPostsViewModelDetail(dbPosts) {
+  _getPostsViewModelDetail({ items, totalCount, pagesCount, page, pageSize }) {
     return {
-      pagesCount: 0,
-      page: 0,
-      pageSize: 0,
-      totalCount: 0,
-      items: dbPosts.map(post => ({
-        id: post.id,
-        title: post.title,
-        shortDescription: post.shortDescription,
-        content: post.content,
-        blogId: post.blogId,
-        blogName: post.blogName,
-        createdAt: post.createdAt,
+      pagesCount,
+      page,
+      pageSize,
+      totalCount,
+      items: items.map(item => ({
+        id: item.id,
+        title: item.title,
+        shortDescription: item.shortDescription,
+        content: item.content,
+        blogId: item.blogId,
+        blogName: item.blogName,
+        createdAt: item.createdAt,
       })),
     }
   },  

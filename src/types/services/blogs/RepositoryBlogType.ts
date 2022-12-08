@@ -22,6 +22,22 @@ export type CreaetPostService = {
   blogName: string,
 }
 
+export type BlogsViewModelDetailArgs = {
+  items: BlogType[]
+  totalCount: number
+  pagesCount: number
+  page: number
+  pageSize: number
+}
+
+export type PostsViewModelDetailArgs = {
+  items: PostType[]
+  totalCount: number
+  pagesCount: number
+  page: number
+  pageSize: number
+}
+
 export type RepositoryBlogType = {
   findAllBlogs: ({ searchNameTerm, pageNumber = 1, pageSize = 10, sortBy = 'createdAt', sortDirection =  SortDirection.ASC}: QueryBlogModel) => Promise<BlogsViewModelDetail>
   findBlogById: (id: string) => Promise<BlogViewModel | null>
@@ -32,6 +48,6 @@ export type RepositoryBlogType = {
   deleteBlogById: (id: string) => Promise<boolean>
   _getBlogViewModel: (dbBlog: BlogType) => BlogViewModel
   _getPostViewModel: (dbPosts: PostType) => PostViewModel
-  _getBlogsViewModelDetail: (dbBlogs: BlogType[]) => BlogsViewModelDetail
-  _getPostsViewModelDetail: (dbPosts: PostType[]) => PostsViewModelDetail
+  _getBlogsViewModelDetail: ({ items, totalCount, pagesCount, page, pageSize }: BlogsViewModelDetailArgs) => BlogsViewModelDetail
+  _getPostsViewModelDetail: ({ items, totalCount, pagesCount, page, pageSize }: PostsViewModelDetailArgs) => PostsViewModelDetail
 }

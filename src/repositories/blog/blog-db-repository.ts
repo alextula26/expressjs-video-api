@@ -19,14 +19,24 @@ export const blogRepository: RepositoryBlogType = {
       filter.name = { $regex: searchNameTerm }
     }
 
+    const totalCount = await blogCollection.count(filter)
+    const pagesCount = Math.ceil(totalCount / pageSize)
+    const skip = (+pageNumber - 1) * +pageSize
+
     const blogs: BlogType[] = await blogCollection
       .find(filter)
       .sort(sort)
-      // .skip(pageNumber)
+      .skip(skip)
       .limit(+pageSize)
       .toArray()
 
-    return this._getBlogsViewModelDetail(blogs)
+    return this._getBlogsViewModelDetail({
+      items: blogs,
+      totalCount,
+      pagesCount,
+      page: +pageNumber,
+      pageSize: +pageSize,
+    })
   },
   async findBlogById(id) {
     const foundBlog: BlogType | null = await blogCollection.findOne({ id })
@@ -51,14 +61,24 @@ export const blogRepository: RepositoryBlogType = {
       filter.title = { $regex: searchNameTerm }
     }
 
+    const totalCount = await postCollection.count(filter)
+    const pagesCount = Math.ceil(totalCount / pageSize)
+    const skip = (+pageNumber - 1) * +pageSize
+
     const posts: PostType[] = await postCollection
       .find(filter)
       .sort(sort)
-      // .skip(pageNumber)
+      .skip(skip)
       .limit(+pageSize)
       .toArray()
 
-    return this._getPostsViewModelDetail(posts)
+    return this._getPostsViewModelDetail({
+      items: posts,
+      totalCount,
+      pagesCount,
+      page: +pageNumber,
+      pageSize: +pageSize,
+    })
   },
   async createdBlog({ name, description, websiteUrl }) {
     const createdBlog: BlogType = {
@@ -124,35 +144,35 @@ export const blogRepository: RepositoryBlogType = {
       createdAt: dbPost.createdAt,
     }
   },
-  _getBlogsViewModelDetail(dbBlogs) {
+  _getBlogsViewModelDetail({ items, totalCount, pagesCount, page, pageSize }) {
     return {
-      pagesCount: 0,
-      page: 0,
-      pageSize: 0,
-      totalCount: 0,
-      items: dbBlogs.map(blog => ({
-        id: blog.id,
-        name: blog.name,
-        description: blog.description,
-        websiteUrl: blog.websiteUrl,
-        createdAt: blog.createdAt,
+      pagesCount,
+      page,
+      pageSize,
+      totalCount,
+      items: items.map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        websiteUrl: item.websiteUrl,
+        createdAt: item.createdAt,
       })),
     }
   },
-  _getPostsViewModelDetail(dbPosts) {
+  _getPostsViewModelDetail({ items, totalCount, pagesCount, page, pageSize }) {
     return {
-      pagesCount: 0,
-      page: 0,
-      pageSize: 0,
-      totalCount: 0,
-      items: dbPosts.map(post => ({
-        id: post.id,
-        title: post.title,
-        shortDescription: post.shortDescription,
-        content: post.content,
-        blogId: post.blogId,
-        blogName: post.blogName,
-        createdAt: post.createdAt,
+      pagesCount,
+      page,
+      pageSize,
+      totalCount,
+      items: items.map(item => ({
+        id: item.id,
+        title: item.title,
+        shortDescription: item.shortDescription,
+        content: item.content,
+        blogId: item.blogId,
+        blogName: item.blogName,
+        createdAt: item.createdAt,
       })),
     }
   },  

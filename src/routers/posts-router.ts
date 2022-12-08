@@ -16,9 +16,11 @@ import {
   PostViewModel,
   PostsViewModelDetail,
   URIParamsPostModel,
+  QueryPostModel,
   CreatePostModel,
   UpdatePostModel,
   RequestWithBody,
+  RequestWithQuery,
   RequestWithParams,
   RequestWithParamsAndBody,
   ErrorsMessageType,
@@ -36,8 +38,15 @@ const middlewares = [
 ]
 
 postsRouter
-  .get('/', async (_, res: Response<PostsViewModelDetail>) => {
-    const allPosts = await postRepository.findAllPosts()
+  .get('/', async (req: RequestWithQuery<QueryPostModel>, res: Response<PostsViewModelDetail>) => {
+    const allPosts = await postRepository.findAllPosts({
+      searchNameTerm: req.query.searchNameTerm,
+      pageNumber: req.query.pageNumber, 
+      pageSize: req.query.pageSize,
+      sortBy: req.query.sortBy,
+      sortDirection: req.query.sortDirection,
+    })
+    
     res.status(HTTPStatuses.SUCCESS200).send(allPosts)
   })
   .get('/:id', async (req: RequestWithParams<URIParamsPostModel>, res: Response<PostViewModel>) => {
