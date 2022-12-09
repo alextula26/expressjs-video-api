@@ -1,7 +1,4 @@
-export enum SortDirection {
-  ASC = 'asc', 
-  DESC = 'desc', 
-}
+import { SortDirection } from '../../enums'
 
 export type QueryBlogModel = {
   searchNameTerm: string | null
