@@ -17,7 +17,7 @@ export const postService: ServicePostType = {
       pageNumber,
       pageSize,
       sortBy,
-      sortDirection
+      sortDirection,
     })
 
     return foundAllPosts
@@ -42,7 +42,7 @@ export const postService: ServicePostType = {
 
     return createdPost
   },
-  async updatePost({ id, title, shortDescription, content, blogId, blogName }) {  
+  async updatePost({ id, title, shortDescription, content, blogId, blogName }) {
     const updatedPost = {
       id,
       title: trim(String(title)),

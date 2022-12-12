@@ -12,7 +12,7 @@ export const postRepository: RepositoryPostType = {
   }) {
     const filter: any = {}
     const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
-    
+
     if (searchNameTerm) {
       filter.title = { $regex: searchNameTerm, $options: 'i' }
     }
@@ -50,7 +50,7 @@ export const postRepository: RepositoryPostType = {
 
     return this._getPostViewModel(createdPost)
   },
-  async updatePost({ id, title, shortDescription, content, blogId, blogName }) {  
+  async updatePost({ id, title, shortDescription, content, blogId, blogName }) {
     const { matchedCount } = await postCollection.updateOne({ id }, {
       $set: {
         title: trim(String(title)),
@@ -95,5 +95,5 @@ export const postRepository: RepositoryPostType = {
         createdAt: item.createdAt,
       })),
     }
-  },  
+  },
 }
