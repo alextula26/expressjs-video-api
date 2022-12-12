@@ -1,17 +1,14 @@
 import { trim } from 'lodash'
-import { postCollection } from '../db'
-
-import { getNextStrId } from '../../utils'
-
+import { postCollection } from '../../repositories/db'
 import { RepositoryPostType, PostType, SortDirection } from '../../types'
 
 export const postRepository: RepositoryPostType = {
   async findAllPosts({
-    searchNameTerm = null,
-    pageNumber = 1,
-    pageSize = 10,
-    sortBy = 'createdAt',
-    sortDirection =  SortDirection.DESC,
+    searchNameTerm,
+    pageNumber,
+    pageSize,
+    sortBy,
+    sortDirection,
   }) {
     const filter: any = {}
     const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
@@ -48,17 +45,7 @@ export const postRepository: RepositoryPostType = {
 
     return this._getPostViewModel(foundPost)
   },
-  async createdPost({ title, shortDescription, content, blogId, blogName }) {
-    const createdPost: PostType = {
-      id: getNextStrId(),
-      title: trim(String(title)),
-      shortDescription: trim(String(shortDescription)),
-      content: trim(String(content)),
-      blogId,
-      blogName,
-      createdAt: new Date().toISOString(),
-    }
-
+  async createdPost(createdPost) {
     await postCollection.insertOne(createdPost)
 
     return this._getPostViewModel(createdPost)

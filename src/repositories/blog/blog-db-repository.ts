@@ -1,20 +1,18 @@
 import { trim } from 'lodash'
 import { blogCollection, postCollection } from '../../repositories/db'
-
-import { getNextStrId } from '../../utils'
 import { RepositoryBlogType, BlogType, PostType, SortDirection  } from '../../types'
 
 export const blogRepository: RepositoryBlogType = {
   async findAllBlogs({
-    searchNameTerm = null,
-    pageNumber = 1,
-    pageSize = 10,
-    sortBy = 'createdAt',
-    sortDirection =  SortDirection.DESC,
+    searchNameTerm,
+    pageNumber,
+    pageSize,
+    sortBy,
+    sortDirection,
   }) {
     const filter: any = {}
     const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
-    
+
     if (searchNameTerm) {
       filter.name = { $regex: searchNameTerm, $options: 'i' }
     }
@@ -48,11 +46,11 @@ export const blogRepository: RepositoryBlogType = {
     return this._getBlogViewModel(foundBlog)
   },
   async findPostsByBlogId(blogId, {
-    searchNameTerm = null,
-    pageNumber = 1,
-    pageSize = 10,
-    sortBy = 'createdAt',
-    sortDirection =  SortDirection.DESC,
+    searchNameTerm,
+    pageNumber,
+    pageSize,
+    sortBy,
+    sortDirection,
   }) {
     const filter: any = { blogId: { $eq: blogId } }
     const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
@@ -80,35 +78,17 @@ export const blogRepository: RepositoryBlogType = {
       pageSize: +pageSize,
     })
   },
-  async createdBlog({ name, description, websiteUrl }) {
-    const createdBlog: BlogType = {
-      id: getNextStrId(),
-      name: trim(String(name)),
-      description: trim(String(description)),
-      websiteUrl: trim(String(websiteUrl)),
-      createdAt: new Date().toISOString()
-    }
-
+  async createdBlog(createdBlog) {
     await blogCollection.insertOne(createdBlog)
 
     return this._getBlogViewModel(createdBlog)
   },
-  async createdPostByBlogId({ title, shortDescription, content, blogId, blogName }) {
-    const createdPost: PostType = {
-      id: getNextStrId(),
-      title: trim(String(title)),
-      shortDescription: trim(String(shortDescription)),
-      content: trim(String(content)),
-      blogId,
-      blogName,
-      createdAt: new Date().toISOString(),
-    }
-
+  async createdPostByBlogId(createdPost) {
     await postCollection.insertOne(createdPost)
 
     return this._getPostViewModel(createdPost)
   },
-  async updateBlog({id, name, description, websiteUrl }) {      
+  async updateBlog({id, name, description, websiteUrl }) {
     const { matchedCount } = await blogCollection.updateOne({ id }, {
       $set: {
         name: trim(String(name)),
@@ -117,14 +97,14 @@ export const blogRepository: RepositoryBlogType = {
       }
     })
 
-    return matchedCount === 1    
+    return matchedCount === 1
   },
   async deleteBlogById(id) {
     const { deletedCount } = await blogCollection.deleteOne({ id })
 
     return deletedCount === 1
   },
-  _getBlogViewModel(dbBlog) {    
+  _getBlogViewModel(dbBlog) {
     return {
       id: dbBlog.id,
       name: dbBlog.name,
@@ -175,5 +155,5 @@ export const blogRepository: RepositoryBlogType = {
         createdAt: item.createdAt,
       })),
     }
-  },  
+  },
 }

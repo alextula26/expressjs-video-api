@@ -1,3 +1,3 @@
-export * from './testing'
-export * from './posts'
-export * from './blogs'
+export { RepositoryTestingType } from './RepositoryTestingType'
+export { RepositoryBlogType } from './RepositoryBlogType'
+export { RepositoryPostType } from './RepositoryPostType'
