@@ -10,6 +10,9 @@ export const blogRepository: RepositoryBlogType = {
     sortBy,
     sortDirection,
   }) {
+    const number = pageNumber ? Number(pageNumber) : 1
+    const size = pageSize ? Number(pageSize) : 10
+    
     const filter: any = {}
     const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
 
@@ -18,8 +21,8 @@ export const blogRepository: RepositoryBlogType = {
     }
 
     const totalCount = await blogCollection.count(filter)
-    const pagesCount = Math.ceil(totalCount / pageSize)
-    const skip = (+pageNumber - 1) * +pageSize
+    const pagesCount = Math.ceil(totalCount / size)
+    const skip = (number - 1) * size
 
     const blogs: BlogType[] = await blogCollection
       .find(filter)
@@ -32,8 +35,8 @@ export const blogRepository: RepositoryBlogType = {
       items: blogs,
       totalCount,
       pagesCount,
-      page: +pageNumber,
-      pageSize: +pageSize,
+      page: number,
+      pageSize: size,
     })
   },
   async findBlogById(id) {
@@ -52,6 +55,9 @@ export const blogRepository: RepositoryBlogType = {
     sortBy,
     sortDirection,
   }) {
+    const number = pageNumber ? Number(pageNumber) : 1
+    const size = pageSize ? Number(pageSize) : 10
+
     const filter: any = { blogId: { $eq: blogId } }
     const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
 
@@ -60,8 +66,8 @@ export const blogRepository: RepositoryBlogType = {
     }
 
     const totalCount = await postCollection.count(filter)
-    const pagesCount = Math.ceil(totalCount / pageSize)
-    const skip = (+pageNumber - 1) * +pageSize
+    const pagesCount = Math.ceil(totalCount / size)
+    const skip = (number - 1) * size
 
     const posts: PostType[] = await postCollection
       .find(filter)
@@ -74,8 +80,8 @@ export const blogRepository: RepositoryBlogType = {
       items: posts,
       totalCount,
       pagesCount,
-      page: +pageNumber,
-      pageSize: +pageSize,
+      page: number,
+      pageSize: size,
     })
   },
   async createdBlog(createdBlog) {

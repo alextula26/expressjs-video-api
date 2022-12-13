@@ -6,10 +6,10 @@ import { ServiceUserType } from '../types/domain/users'
 
 export const userService: ServiceUserType = {
   async findAllUsers({
-    searchLoginTerm = null,
-    searchEmailTerm = null,
-    pageNumber = 1,
-    pageSize = 10,
+    searchLoginTerm,
+    searchEmailTerm,
+    pageNumber,
+    pageSize,
     sortBy = 'createdAt',
     sortDirection =  SortDirection.DESC,
   }) {

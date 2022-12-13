@@ -6,9 +6,9 @@ import { ServicePostType } from '../types/domain/posts'
 
 export const postService: ServicePostType = {
   async findAllPosts({
-    searchNameTerm = null,
-    pageNumber = 1,
-    pageSize = 10,
+    searchNameTerm,
+    pageNumber,
+    pageSize,
     sortBy = 'createdAt',
     sortDirection =  SortDirection.DESC,
   }) {

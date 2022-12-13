@@ -17,7 +17,6 @@ import {
   CreateUserModel,
   UserViewModel,
   ResponseViewModelDetail,
-  UserType,
   HTTPStatuses,
   ErrorsMessageType,
 } from '../types'
@@ -33,7 +32,7 @@ const middlewares = [
 ]
 
 usersRouter
-  .get('/', authMiddleware, async (req: RequestWithQuery<QueryUserModel & any>, res: Response<ResponseViewModelDetail<UserType>>) => {
+  .get('/', authMiddleware, async (req: RequestWithQuery<QueryUserModel>, res: Response<ResponseViewModelDetail<UserViewModel>>) => {
     const allUsers = await userService.findAllUsers({
       searchLoginTerm: req.query.searchLoginTerm,
       searchEmailTerm: req.query.searchEmailTerm,
@@ -41,8 +40,8 @@ usersRouter
       pageSize: req.query.pageSize,
       sortBy: req.query.sortBy,
       sortDirection: req.query.sortDirection,
-    })
-    
+    })  
+
     res.status(HTTPStatuses.SUCCESS200).send(allUsers)
   })
   .get('/:id', authMiddleware, async (req: RequestWithParams<URIParamsUserModel>, res: Response<UserViewModel>) => {

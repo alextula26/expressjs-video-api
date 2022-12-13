@@ -26,8 +26,6 @@ import {
   BlogViewModel,
   PostViewModel,
   ResponseViewModelDetail,
-  BlogType,
-  PostType,
   HTTPStatuses,
   ErrorsMessageType,
 } from '../types'
@@ -51,7 +49,7 @@ const middlewaresPost = [
 ]
 
 blogsRouter
-  .get('/', async (req: RequestWithQuery<QueryBlogModel>, res: Response<ResponseViewModelDetail<BlogType>>) => {
+  .get('/', async (req: RequestWithQuery<QueryBlogModel>, res: Response<ResponseViewModelDetail<BlogViewModel>>) => {
     const allBlogs = await blogService.findAllBlogs({
       searchNameTerm: req.query.searchNameTerm,
       pageNumber: req.query.pageNumber, 
@@ -71,7 +69,7 @@ blogsRouter
 
     res.status(HTTPStatuses.SUCCESS200).send(blogById)
   })
-  .get('/:blogId/posts', async (req: RequestWithParamsAndQuery<URIParamsPostsByBlogId, QueryBlogModel>, res: Response<ResponseViewModelDetail<PostType>>) => {
+  .get('/:blogId/posts', async (req: RequestWithParamsAndQuery<URIParamsPostsByBlogId, QueryBlogModel>, res: Response<ResponseViewModelDetail<PostViewModel>>) => {
     const blogById = await blogService.findBlogById(req.params.blogId)
 
     if (!blogById) {

@@ -39,7 +39,7 @@ const middlewares = [
 ]
 
 postsRouter
-  .get('/', async (req: RequestWithQuery<QueryPostModel>, res: Response<ResponseViewModelDetail<PostType>>) => {
+  .get('/', async (req: RequestWithQuery<QueryPostModel>, res: Response<ResponseViewModelDetail<PostViewModel>>) => {
     const allPosts = await postService.findAllPosts({
       searchNameTerm: req.query.searchNameTerm,
       pageNumber: req.query.pageNumber, 

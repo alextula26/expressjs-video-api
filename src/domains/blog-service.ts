@@ -6,9 +6,9 @@ import { ServiceBlogType } from '../types/domain/blogs'
 
 export const blogService: ServiceBlogType = {
   async findAllBlogs({
-    searchNameTerm = null,
-    pageNumber = 1,
-    pageSize = 10,
+    searchNameTerm,
+    pageNumber,
+    pageSize,
     sortBy = 'createdAt',
     sortDirection =  SortDirection.DESC,
   }) {
@@ -28,9 +28,9 @@ export const blogService: ServiceBlogType = {
     return foundBlogById
   },
   async findPostsByBlogId(blogId: string, {
-    searchNameTerm = null,
-    pageNumber = 1,
-    pageSize = 10,
+    searchNameTerm,
+    pageNumber,
+    pageSize,
     sortBy = 'createdAt',
     sortDirection =  SortDirection.DESC,
   }) {

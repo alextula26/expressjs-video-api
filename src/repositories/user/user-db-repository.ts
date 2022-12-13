@@ -11,6 +11,9 @@ export const userRepository: RepositoryUserType = {
     sortBy,
     sortDirection,
   }) {
+    const number = pageNumber ? Number(pageNumber) : 1
+    const size = pageSize ? Number(pageSize) : 10
+
     const filter: any = {}
     const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
 
@@ -23,8 +26,8 @@ export const userRepository: RepositoryUserType = {
     }
 
     const totalCount = await userCollection.count(filter)
-    const pagesCount = Math.ceil(totalCount / pageSize)
-    const skip = (+pageNumber - 1) * +pageSize
+    const pagesCount = Math.ceil(totalCount / size)
+    const skip = (number - 1) * size
 
     const users: UserType[] = await userCollection
       .find(filter)
@@ -37,8 +40,8 @@ export const userRepository: RepositoryUserType = {
       items: users,
       totalCount,
       pagesCount,
-      page: +pageNumber,
-      pageSize: +pageSize,
+      page: number,
+      pageSize: size,
     })
   },
   async findUserById(id) {
