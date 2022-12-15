@@ -32,7 +32,6 @@ export const userService: ServiceUserType = {
   },
   async createdUser({ login, password, email }) {
     const passwordSalt = await bcrypt.genSaltSync(10)
-    console.log('passwordSalt', passwordSalt)
     const passwordHash = await this._generateHash(password, passwordSalt)
     
     const newUser: UserType = {
