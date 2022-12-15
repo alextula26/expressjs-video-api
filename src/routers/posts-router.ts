@@ -63,7 +63,7 @@ postsRouter
     const blogById = await blogService.findBlogById(req.body.blogId)
 
     if (isEmpty(blogById)) {
-      return res.status(HTTPStatuses.NOTFOUND404).send()
+      return res.status(HTTPStatuses.BADREQUEST400).send()
     }
 
     const createdPost = await postService.createdPost({
