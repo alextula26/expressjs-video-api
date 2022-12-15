@@ -1,4 +1,5 @@
 import { trim } from 'lodash'
+import bcrypt from 'bcrypt'
 import { userRepository } from '../repositories/user/user-db-repository'
 import { getNextStrId } from '../utils'
 import { UserType, SortDirection } from '../types'
@@ -30,10 +31,15 @@ export const userService: ServiceUserType = {
     return foundUserById
   },
   async createdUser({ login, password, email }) {
+    const passwordSalt = await bcrypt.genSaltSync(10)
+    console.log('passwordSalt', passwordSalt)
+    const passwordHash = await this._generateHash(password, passwordSalt)
+    
     const newUser: UserType = {
       id: getNextStrId(),
       login: trim(String(login)),
       email: trim(String(email)),
+      passwordHash,
       createdAt: new Date().toISOString(),
     }
 
@@ -46,4 +52,8 @@ export const userService: ServiceUserType = {
 
     return isDeleteUserById
   },
+  async _generateHash(password, salt) {
+    const hash = await bcrypt.hash(password, salt)
+    return hash
+  }
 }

@@ -1,5 +1,4 @@
 import { BlogViewModel, PostViewModel, QueryBlogModel } from '../../models'
-import { BlogType, PostType } from '../../schema'
 import { ResponseViewModelDetail } from '../../response'
 import { CreaetBlogService, UpdateBlogService, CreaetPostService } from '../../domain'
 

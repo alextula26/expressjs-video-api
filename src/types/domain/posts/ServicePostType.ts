@@ -1,5 +1,4 @@
 import { PostViewModel, QueryPostModel } from '../../models'
-import { PostType } from '../../schema'
 import { ResponseViewModelDetail } from '../../response'
 import { UpdatePostService, CreaetPostService } from '../../domain'
 

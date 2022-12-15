@@ -1,4 +1,3 @@
-import { trim } from 'lodash'
 import { blogCollection, postCollection } from '../../repositories/db'
 import { RepositoryBlogType, BlogType, PostType, SortDirection  } from '../../types'
 
@@ -97,9 +96,9 @@ export const blogRepository: RepositoryBlogType = {
   async updateBlog({id, name, description, websiteUrl }) {
     const { matchedCount } = await blogCollection.updateOne({ id }, {
       $set: {
-        name: trim(String(name)),
-        description: trim(String(description)),
-        websiteUrl: trim(String(websiteUrl)),
+        name,
+        description,
+        websiteUrl,
       }
     })
 

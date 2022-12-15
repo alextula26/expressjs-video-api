@@ -1,4 +1,3 @@
-import { trim } from 'lodash'
 import { userCollection } from '../db'
 import { RepositoryUserType, SortDirection, UserType } from '../../types'
 
@@ -68,6 +67,7 @@ export const userRepository: RepositoryUserType = {
       id: dbUser.id,
       login: dbUser.login,
       email: dbUser.email,
+      // passwordHash: dbUser.passwordHash,
       createdAt: dbUser.createdAt,
     }
   },
@@ -81,6 +81,7 @@ export const userRepository: RepositoryUserType = {
         id: item.id,
         login: item.login,
         email: item.email,
+        // passwordHash: item.passwordHash,
         createdAt: item.createdAt,
       })),
     }
