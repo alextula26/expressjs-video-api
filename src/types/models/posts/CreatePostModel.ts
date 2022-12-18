@@ -5,8 +5,12 @@ export type CreatePostModel = {
   blogId: string
 }
 
-export type CreatePostModelWithoutBlogId = {
+export type CreatePostForBlogModel = {
   title: string
   shortDescription: string
+  content: string
+}
+
+export type CreateCommentsForPostModel = {
   content: string
 }

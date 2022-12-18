@@ -20,8 +20,9 @@ import {
   URIParamsBlogModel,
   URIParamsPostsByBlogId,
   QueryBlogModel,
+  QueryPostModel,
   CreateBlogModel,
-  CreatePostModelWithoutBlogId,
+  CreatePostForBlogModel,
   UpdateBlogModel,
   BlogViewModel,
   PostViewModel,
@@ -69,7 +70,7 @@ blogsRouter
 
     res.status(HTTPStatuses.SUCCESS200).send(blogById)
   })
-  .get('/:blogId/posts', async (req: RequestWithParamsAndQuery<URIParamsPostsByBlogId, QueryBlogModel>, res: Response<ResponseViewModelDetail<PostViewModel>>) => {
+  .get('/:blogId/posts', async (req: RequestWithParamsAndQuery<URIParamsPostsByBlogId, QueryPostModel>, res: Response<ResponseViewModelDetail<PostViewModel>>) => {
     const blogById = await blogService.findBlogById(req.params.blogId)
 
     if (!blogById) {
@@ -95,7 +96,7 @@ blogsRouter
 
     res.status(HTTPStatuses.CREATED201).send(createdBlog)
   })
-  .post('/:blogId/posts', middlewaresPost, async (req: RequestWithParamsAndBody<URIParamsPostsByBlogId, CreatePostModelWithoutBlogId>, res: Response<PostViewModel | ErrorsMessageType>) => {
+  .post('/:blogId/posts', middlewaresPost, async (req: RequestWithParamsAndBody<URIParamsPostsByBlogId, CreatePostForBlogModel>, res: Response<PostViewModel | ErrorsMessageType>) => {
     const blogById = await blogService.findBlogById(req.params.blogId)
 
     if (!blogById) {
