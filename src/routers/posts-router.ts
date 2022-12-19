@@ -8,6 +8,7 @@ import {
   shortPostDescriptionValidation,
   contentPostValidation,
   blogIdPostValidation,
+  contentCommentValidation,
   inputValidationMiddleware,
 } from '../middlewares'
 
@@ -40,6 +41,12 @@ const middlewares = [
   contentPostValidation,
   blogIdPostValidation,
   inputValidationMiddleware,
+]
+
+const middlewaresComment = [
+  authMiddleware,
+  contentCommentValidation,
+  inputValidationMiddleware
 ]
 
 postsRouter
@@ -96,7 +103,7 @@ postsRouter
 
     res.status(HTTPStatuses.CREATED201).send(createdPost)
   })
-  .post('/:postId/comments', authMiddleware, async (req: RequestWithParamsAndBody<URIParamsCommentsByPostId, CreateCommentsModel>, res: Response<CommentViewModel | ErrorsMessageType>) => {
+  .post('/:postId/comments', middlewaresComment, async (req: RequestWithParamsAndBody<URIParamsCommentsByPostId, CreateCommentsModel>, res: Response<CommentViewModel | ErrorsMessageType>) => {
     const postById = await postService.findPostById(req.params.postId)
     
     if (!postById) {

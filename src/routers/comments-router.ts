@@ -3,10 +3,7 @@ import { isEmpty } from 'lodash'
 import { commentService } from '../domains/comment-service'
 import {
   authMiddleware,
-  titlePostValidation,
-  shortPostDescriptionValidation,
-  contentPostValidation,
-  blogIdPostValidation,
+  contentCommentValidation,
   inputValidationMiddleware,
 } from '../middlewares'
 
@@ -23,10 +20,7 @@ export const commentsRouter = Router()
 
 const middlewares = [
   authMiddleware,
-  titlePostValidation,
-  shortPostDescriptionValidation,
-  contentPostValidation,
-  blogIdPostValidation,
+  contentCommentValidation,
   inputValidationMiddleware,
 ]
 
