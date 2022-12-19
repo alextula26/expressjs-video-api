@@ -22,7 +22,7 @@ import {
   QueryPostModel,
   QueryCommentModel,
   CreatePostModel,
-  CreateCommentsForPostModel,
+  CreateCommentsModel,
   UpdatePostModel,
   PostViewModel,
   CommentViewModel,
@@ -96,7 +96,7 @@ postsRouter
 
     res.status(HTTPStatuses.CREATED201).send(createdPost)
   })
-  .post('/:postId/comments', authMiddleware, async (req: RequestWithParamsAndBody<URIParamsCommentsByPostId, CreateCommentsForPostModel>, res: Response<CommentViewModel | ErrorsMessageType>) => {
+  .post('/:postId/comments', authMiddleware, async (req: RequestWithParamsAndBody<URIParamsCommentsByPostId, CreateCommentsModel>, res: Response<CommentViewModel | ErrorsMessageType>) => {
     const postById = await postService.findPostById(req.params.postId)
     
     if (!postById) {

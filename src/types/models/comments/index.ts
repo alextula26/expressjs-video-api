@@ -1,5 +1,5 @@
 export * from './CommentViewModel'
+export * from './CreateCommentsModel'
 export * from './QueryCommentModel'
-export * from './CreateCommentModel'
 export * from './UpdateCommentModel'
 export * from './URIParamsCommentModel'

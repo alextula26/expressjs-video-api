@@ -1,7 +1,7 @@
 
 export type URIParamsCommentModel = {
   /** 
-   * commentId of existing video
+   * id of existing video
   */
-  commentId: string
+  id: string
 }

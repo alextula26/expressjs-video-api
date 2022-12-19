@@ -10,7 +10,3 @@ export type CreatePostForBlogModel = {
   shortDescription: string
   content: string
 }
-
-export type CreateCommentsForPostModel = {
-  content: string
-}

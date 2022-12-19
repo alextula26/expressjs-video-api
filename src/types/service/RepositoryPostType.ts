@@ -1,7 +1,7 @@
 import { PostViewModel, CommentViewModel, QueryPostModel, QueryCommentModel } from '../models'
 import { PostType, CommentType } from '../schema'
 import { ResponseViewModelDetail } from '../response'
-import { UpdatePostService } from '../domain/posts'
+import { UpdatePostService } from '../domain'
 
 export type RepositoryPostType = {
   findAllPosts: ({ searchNameTerm, pageNumber, pageSize, sortBy, sortDirection }: QueryPostModel) => Promise<ResponseViewModelDetail<PostViewModel>>
