@@ -1,4 +1,5 @@
 import { Router, Response } from 'express'
+import { jwtService } from '../application'
 import { userService } from '../domains/user-service'
 import {
   loginOrEmailUserValidation,
@@ -22,12 +23,14 @@ const middlewares = [
 ]
 
 authRouter
-  .post('/login', middlewares, async (req: RequestWithBody<AuthUserModel>, res: Response<ErrorsMessageType>) => {
-    const checkResult = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
+  .post('/login', middlewares, async (req: RequestWithBody<AuthUserModel>, res: Response<{ token: string } | ErrorsMessageType>) => {
+    const user = await userService.checkCredentials(req.body.loginOrEmail, req.body.password)
 
-    if (!checkResult) {
+    if (!user) {
       return res.status(HTTPStatuses.UNAUTHORIZED401).send()
     }
 
-    res.status(HTTPStatuses.NOCONTENT204).send()
+    const token = await jwtService.createJWT(user)
+
+    res.status(HTTPStatuses.SUCCESS200).send(token)
   })
