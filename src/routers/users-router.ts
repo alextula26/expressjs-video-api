@@ -33,7 +33,6 @@ const middlewares = [
 
 usersRouter
   .get('/', authBearerMiddleware, async (req: RequestWithQuery<QueryUserModel>, res: Response<ResponseViewModelDetail<UserViewModel>>) => {
-    console.log('usersRouter get')
     const allUsers = await userService.findAllUsers({
       searchLoginTerm: req.query.searchLoginTerm,
       searchEmailTerm: req.query.searchEmailTerm,
