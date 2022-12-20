@@ -35,7 +35,7 @@ authRouter
 
     res.status(HTTPStatuses.SUCCESS200).send(token)
   })
-  .get('/', authBearerMiddleware, async (req: Request & any, res: Response) => {
+  .get('/me', authBearerMiddleware, async (req: Request & any, res: Response) => {
     const foundUserById = await userService.findUserById(req.user.userId)  
 
     res.status(HTTPStatuses.SUCCESS200).send(foundUserById)

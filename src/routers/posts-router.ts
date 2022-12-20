@@ -113,7 +113,7 @@ postsRouter
     const createdCommentByPostId = await commentService.createdComment({
       content: req.body.content,
       postId: postById.id,
-      userId: req.user!.id,
+      userId: req.user!.userId,
       userLogin: req.user!.login,
     })
 
