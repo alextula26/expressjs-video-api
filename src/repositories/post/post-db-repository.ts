@@ -1,4 +1,4 @@
-import { postCollection, commentCollection } from '../../repositories/db'
+import { postCollection } from '../../repositories/db'
 import { RepositoryPostType, PostType, CommentType, SortDirection } from '../../types'
 
 export const postRepository: RepositoryPostType = {
@@ -47,46 +47,10 @@ export const postRepository: RepositoryPostType = {
 
     return this._getPostViewModel(foundPost)
   },
-  async findCommentsByPostId(postId, {
-    pageNumber,
-    pageSize,
-    sortBy,
-    sortDirection,
-  }) {
-    const number = pageNumber ? Number(pageNumber) : 1
-    const size = pageSize ? Number(pageSize) : 10
-
-    const filter: any = { postId: { $eq: postId } }
-    const sort: any = { [sortBy]: sortDirection === SortDirection.ASC ? 1 : -1 }
-
-    const totalCount = await postCollection.count(filter)
-    const pagesCount = Math.ceil(totalCount / size)
-    const skip = (number - 1) * size
-
-    const comments: CommentType[] = await commentCollection
-      .find(filter)
-      .sort(sort)
-      .skip(skip)
-      .limit(size)
-      .toArray()
-
-    return this._getCommentsViewModelDetail({
-      items: comments,
-      totalCount,
-      pagesCount,
-      page: number,
-      pageSize: size,
-    })
-  },  
   async createdPost(createdPost) {
     await postCollection.insertOne(createdPost)
 
     return this._getPostViewModel(createdPost)
-  },
-  async createdCommentByPostId(createdComment) {
-    await commentCollection.insertOne(createdComment)
-
-    return this._getCommentViewModel(createdComment)
   },
   async updatePost({ id, title, shortDescription, content, blogId, blogName }) {
     const { matchedCount } = await postCollection.updateOne({ id }, {
@@ -117,15 +81,6 @@ export const postRepository: RepositoryPostType = {
       createdAt: dbPost.createdAt,
     }
   },
-  _getCommentViewModel(dbComment) {
-    return {
-      id: dbComment.id,
-      content: dbComment.content,
-      userId: dbComment.userId,
-      userLogin: dbComment.userLogin,
-      createdAt: dbComment.createdAt,
-    }
-  },  
   _getPostsViewModelDetail({ items, totalCount, pagesCount, page, pageSize }) {
     return {
       pagesCount,
@@ -143,19 +98,4 @@ export const postRepository: RepositoryPostType = {
       })),
     }
   },
-  _getCommentsViewModelDetail({ items, totalCount, pagesCount, page, pageSize }) {
-    return {
-      pagesCount,
-      page,
-      pageSize,
-      totalCount,
-      items: items.map(item => ({
-        id: item.id,
-        content: item.content,
-        userId: item.userId,
-        userLogin: item.userLogin,
-        createdAt: item.createdAt,
-      })),
-    }
-  },  
 }

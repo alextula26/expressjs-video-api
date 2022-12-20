@@ -1,9 +1,9 @@
 import { Router, Response } from 'express'
 import { isEmpty } from 'lodash'
-import { postService } from '../domains/post-service'
-import { blogService } from '../domains/blog-service'
+import { blogService, postService, commentService } from '../domains'
+
 import {
-  authMiddleware,
+  authBearerMiddleware,
   titlePostValidation,
   shortPostDescriptionValidation,
   contentPostValidation,
@@ -35,7 +35,7 @@ import {
 export const postsRouter = Router()
 
 const middlewares = [
-  authMiddleware,
+  authBearerMiddleware,
   titlePostValidation,
   shortPostDescriptionValidation,
   contentPostValidation,
@@ -44,7 +44,7 @@ const middlewares = [
 ]
 
 const middlewaresComment = [
-  authMiddleware,
+  authBearerMiddleware,
   contentCommentValidation,
   inputValidationMiddleware
 ]
@@ -77,7 +77,7 @@ postsRouter
       return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
-    const commentsByPostId = await postService.findCommentsByPostId(req.params.postId, {
+    const commentsByPostId = await commentService.findAllCommentsByPostId(req.params.postId, {
       pageNumber: req.query.pageNumber, 
       pageSize: req.query.pageSize,
       sortBy: req.query.sortBy,
@@ -103,16 +103,18 @@ postsRouter
 
     res.status(HTTPStatuses.CREATED201).send(createdPost)
   })
-  .post('/:postId/comments', middlewaresComment, async (req: RequestWithParamsAndBody<URIParamsCommentsByPostId, CreateCommentsModel>, res: Response<CommentViewModel | ErrorsMessageType>) => {
+  .post('/:postId/comments', middlewaresComment, async (req: RequestWithParamsAndBody<URIParamsCommentsByPostId, CreateCommentsModel> & any, res: Response<CommentViewModel | ErrorsMessageType>) => {
     const postById = await postService.findPostById(req.params.postId)
     
     if (!postById) {
       return res.status(HTTPStatuses.NOTFOUND404).send()
     }
 
-    const createdCommentByPostId = await postService.createdCommentByPostId({
+    const createdCommentByPostId = await commentService.createdComment({
       content: req.body.content,
       postId: postById.id,
+      userId: req.user!.id,
+      userLogin: req.user!.login,
     })
 
     res.status(HTTPStatuses.CREATED201).send(createdCommentByPostId)
@@ -139,7 +141,7 @@ postsRouter
 
     res.status(HTTPStatuses.NOCONTENT204).send()
   })
-  .delete('/:id', authMiddleware, async (req: RequestWithParams<URIParamsPostModel>, res: Response<boolean>) => {
+  .delete('/:id', authBearerMiddleware, async (req: RequestWithParams<URIParamsPostModel>, res: Response<boolean>) => {
     const isPostDeleted = await postService.deletePostById(req.params.id)
 
     if (!isPostDeleted) {

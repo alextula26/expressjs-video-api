@@ -1,7 +1,7 @@
 import { Router, Response } from 'express'
-import { blogService } from '../domains/blog-service'
+import { blogService } from '../domains'
 import {
-  authMiddleware,
+  authBearerMiddleware,
   nameBlogValidation,
   descriptionBlogValidation,
   websiteUrlBlogValidation,
@@ -34,7 +34,7 @@ import {
 export const blogsRouter = Router()
 
 const middlewares = [
-  authMiddleware,
+  authBearerMiddleware,
   nameBlogValidation,
   descriptionBlogValidation,
   websiteUrlBlogValidation,
@@ -42,7 +42,7 @@ const middlewares = [
 ]
 
 const middlewaresPost = [
-  authMiddleware,
+  authBearerMiddleware,
   titlePostValidation,
   shortPostDescriptionValidation,
   contentPostValidation,
@@ -133,7 +133,7 @@ blogsRouter
 
     res.status(HTTPStatuses.NOCONTENT204).send()
   })
-  .delete('/:id', authMiddleware, async (req: RequestWithParams<URIParamsBlogModel>, res: Response<boolean>) => {
+  .delete('/:id', authBearerMiddleware, async (req: RequestWithParams<URIParamsBlogModel>, res: Response<boolean>) => {
     const isBlogDeleted = await blogService.deleteBlogById(req.params.id)
 
     if (!isBlogDeleted) {

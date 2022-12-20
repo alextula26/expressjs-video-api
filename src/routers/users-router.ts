@@ -1,7 +1,7 @@
 import { Router, Response } from 'express'
-import { userService } from '../domains/user-service'
+import { userService } from '../domains'
 import {
-  authMiddleware,
+  authBearerMiddleware,
   loginUserValidation,
   emailUserValidation,
   passwordUserValidation,
@@ -24,7 +24,7 @@ import {
 export const usersRouter = Router()
 
 const middlewares = [
-  authMiddleware,
+  authBearerMiddleware,
   loginUserValidation,
   emailUserValidation,
   passwordUserValidation,
@@ -32,7 +32,8 @@ const middlewares = [
 ]
 
 usersRouter
-  .get('/', authMiddleware, async (req: RequestWithQuery<QueryUserModel>, res: Response<ResponseViewModelDetail<UserViewModel>>) => {
+  .get('/', authBearerMiddleware, async (req: RequestWithQuery<QueryUserModel>, res: Response<ResponseViewModelDetail<UserViewModel>>) => {
+    console.log('usersRouter get')
     const allUsers = await userService.findAllUsers({
       searchLoginTerm: req.query.searchLoginTerm,
       searchEmailTerm: req.query.searchEmailTerm,
@@ -44,15 +45,6 @@ usersRouter
 
     res.status(HTTPStatuses.SUCCESS200).send(allUsers)
   })
-  .get('/:id', authMiddleware, async (req: RequestWithParams<URIParamsUserModel>, res: Response<UserViewModel>) => {
-    const userById = await userService.findUserById(req.params.id)
-
-    if (!userById) {
-      return res.status(HTTPStatuses.NOTFOUND404).send()
-    }
-
-    res.status(HTTPStatuses.SUCCESS200).send(userById)
-  })
   .post('/', middlewares, async (req: RequestWithBody<CreateUserModel>, res: Response<UserViewModel | ErrorsMessageType>) => {
     const createdUser = await userService.createdUser({
       login: req.body.login,
@@ -62,7 +54,7 @@ usersRouter
 
     res.status(HTTPStatuses.CREATED201).send(createdUser)
   })
-  .delete('/:id', authMiddleware, async (req: RequestWithParams<URIParamsUserModel>, res: Response<boolean>) => {
+  .delete('/:id', authBearerMiddleware, async (req: RequestWithParams<URIParamsUserModel>, res: Response<boolean>) => {
     const isUserDeleted = await userService.deleteUserById(req.params.id)
 
     if (!isUserDeleted) {

@@ -1,8 +1,8 @@
 import { Router, Response } from 'express'
 import { isEmpty } from 'lodash'
-import { commentService } from '../domains/comment-service'
+import { commentService } from '../domains'
 import {
-  authMiddleware,
+  authBearerMiddleware,
   contentCommentValidation,
   inputValidationMiddleware,
 } from '../middlewares'
@@ -19,7 +19,7 @@ import {
 export const commentsRouter = Router()
 
 const middlewares = [
-  authMiddleware,
+  authBearerMiddleware,
   contentCommentValidation,
   inputValidationMiddleware,
 ]
@@ -52,7 +52,7 @@ commentsRouter
 
     res.status(HTTPStatuses.NOCONTENT204).send()
   })
-  .delete('/:id', authMiddleware, async (req: RequestWithParams<URIParamsCommentModel>, res: Response<boolean>) => {
+  .delete('/:id', authBearerMiddleware, async (req: RequestWithParams<URIParamsCommentModel>, res: Response<boolean>) => {
     const isCommentDeleted = await commentService.deleteCommentById(req.params.id)
 
     if (!isCommentDeleted) {

@@ -1,10 +1,12 @@
-import { CommentViewModel } from '../models'
+import { QueryCommentModel, CommentViewModel } from '../models'
 import { CommentType } from '../schema'
 import { ResponseViewModelDetail } from '../response'
 import { UpdateCommentService } from '../domain'
 
 export type RepositoryCommentType = {
+  findAllCommentsByPostId: (postId: string, { pageNumber, pageSize, sortBy, sortDirection }: QueryCommentModel) => Promise<ResponseViewModelDetail<CommentViewModel>>
   findCommentById: (id: string) => Promise<CommentViewModel | null>
+  createdComment: (createdComment: CommentType) => Promise<CommentViewModel>
   updateComment: ({ id, content }: UpdateCommentService) => Promise<boolean>
   deleteCommentById: (id: string) => Promise<boolean>
   _getCommentViewModel: (dbComments: CommentType) => CommentViewModel

@@ -1,7 +1,8 @@
-import { Router, Response } from 'express'
+import { Router, Response, Request } from 'express'
 import { jwtService } from '../application'
-import { userService } from '../domains/user-service'
+import { userService } from '../domains'
 import {
+  authBearerMiddleware,
   loginOrEmailUserValidation,
   passwordUserValidation,
   inputValidationMiddleware,
@@ -33,4 +34,9 @@ authRouter
     const token = await jwtService.createJWT(user)
 
     res.status(HTTPStatuses.SUCCESS200).send(token)
+  })
+  .get('/', authBearerMiddleware, async (req: Request & any, res: Response) => {
+    const foundUserById = await userService.findUserById(req.user.userId)  
+
+    res.status(HTTPStatuses.SUCCESS200).send(foundUserById)
   })
