@@ -6,6 +6,7 @@ import { postsRouter } from './routers/posts-router'
 import { commentsRouter } from './routers/comments-router'
 import { usersRouter } from './routers/users-router'
 import { authRouter } from './routers/auth-router'
+import { emailRouter } from './routers/email-router'
 import { testingRouter } from './routers/testing-router'
 
 export const app = express()
@@ -20,6 +21,7 @@ app.use('/api/posts', postsRouter)
 app.use('/api/comments', commentsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/email', emailRouter)
 app.use('/api/testing', testingRouter)
 
 const startApp = async () => {
