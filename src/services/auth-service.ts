@@ -42,7 +42,7 @@ export const authService: ServiceAuthType = {
   },
   async confirmEmail(code) {
     const user = await userRepository.findByConfirmationCode(code)
-    
+
     if (!user) {
       return false
     }
@@ -63,6 +63,14 @@ export const authService: ServiceAuthType = {
     const user = await userRepository.findByLoginOrEmail(email)
 
     if (!user) {
+      return false
+    }
+
+    if (user.emailConfirmation.isConfirmed) {
+      return false
+    }
+
+    if (user.emailConfirmation.expirationDate < new Date()) {
       return false
     }
     
