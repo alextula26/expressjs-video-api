@@ -70,8 +70,28 @@ authRouter
       return res.status(HTTPStatuses.UNAUTHORIZED401).send()
     }
 
+    // Формируем access токен
+    const accessToken = await jwtService.createAccessToken(user)
+    // Формируем refresh токен
+    const refreshToken = await jwtService.createRefreshToken(user)
+
+    // Пишем refresh токен в cookie
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
+
+    // Возвращаем статус 200 и сформированный access токен
+    res.status(HTTPStatuses.SUCCESS200).send(accessToken)
+  })
+  .post('/refresh-token', middlewaresLogin, async (req: RequestWithBody<AuthUserModel>, res: Response<AuthAccessTokenModel | ErrorsMessageType>) => {
+    // Проверяем правильность ввода логина/email и пароля
+    const user = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
+
+    // Если логин/email и пароль введен неверно, возвращаем статус 401
+    if (!user) {
+      return res.status(HTTPStatuses.UNAUTHORIZED401).send()
+    }
+
     // Формируем jwt токен
-    const token = await jwtService.createJWT(user)
+    const token = await jwtService.createAccessToken(user)
 
     // Возвращаем статус 200 и сформированный токен
     res.status(HTTPStatuses.SUCCESS200).send(token)
