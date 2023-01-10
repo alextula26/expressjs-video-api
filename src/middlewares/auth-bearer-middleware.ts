@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 import { userService } from '../services/user-service'
 import { jwtService } from '../application'
+import { HTTPStatuses } from '../types'
 
 export const authBearerMiddleware = async (req: Request & any, res: Response, next: NextFunction) => {
   if (!req.headers.authorization) {
@@ -14,7 +15,13 @@ export const authBearerMiddleware = async (req: Request & any, res: Response, ne
   const userId = await jwtService.getUserIdByAccessToken(authToken)
 
   if (authType !== 'Bearer' || !userId) {
-    return res.status(401).send()
+    return res.status(HTTPStatuses.UNAUTHORIZED401).send()
+  }
+
+  const user = await userService.findUserById(userId)
+
+  if (!user) {
+    return res.status(HTTPStatuses.UNAUTHORIZED401).send()
   }
 
   req.user = await userService.findUserById(userId)
